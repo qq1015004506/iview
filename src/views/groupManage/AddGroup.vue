@@ -19,7 +19,7 @@
                             <i-col span="18">
                                 <Row>
                                     <FormItem label="组内成员">
-                                        <Table border ref="selection" :columns="columns4" :data="data1"></Table>
+                                        <Table @on-select="onSelect" border ref="selection" :columns="columns" :data="data"></Table>
                                     </FormItem>
                                 </Row>
                                 <Row>
@@ -40,6 +40,7 @@
 </template>
 
 <script>
+    import axios from 'axios'
     export default {
         data () {
             return {
@@ -53,53 +54,45 @@
                     zone: '+86',
                     phone: '10000000000'
                 },
-                columns4: [
+                columns: [
                     {
                         type: 'selection',
                         width: 60,
                         align: 'center'
                     },
                     {
-                        title: 'Name',
+                        title: '真实姓名',
                         key: 'name'
                     },
                     {
-                        title: 'Age',
-                        key: 'age'
+                        title: '职位',
+                        key: 'job'
                     },
                     {
-                        title: 'Address',
-                        key: 'address'
+                        title: '目前小组',
+                        key: 'groupName'
                     }
                 ],
-                data1: [
-                    {
-                        name: 'John Brown',
-                        age: 18,
-                        address: 'New York No. 1 Lake Park',
-                        date: '2016-10-03'
-                    },
-                    {
-                        name: 'Jim Green',
-                        age: 24,
-                        address: 'London No. 1 Lake Park',
-                        date: '2016-10-01'
-                    },
-                    {
-                        name: 'Joe Black',
-                        age: 30,
-                        address: 'Sydney No. 1 Lake Park',
-                        date: '2016-10-02'
-                    },
-                    {
-                        name: 'Jon Snow',
-                        age: 26,
-                        address: 'Ottawa No. 2 Lake Park',
-                        date: '2016-10-04'
-                    }
-                ]
+                data: [],
+                data1:[],
             }
         },
+        methods:{
+            getData(){
+              let url = 'http://localhost:8888/group/staff'
+              axios.get(url).then(res=>{
+                  this.data = res.data;
+              })
+            },
+            onSelect(selection,row) {
+                this.data1 = selection
+                console.log(selection,row,this.data1);
+
+            }
+        },
+        mounted(){
+            this.getData();
+        }
     }
 </script>
 

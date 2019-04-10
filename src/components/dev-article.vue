@@ -59,38 +59,14 @@
         <Layout>
             <Sider class="sider" width="240">
                 <Menu class="sider-menu" theme="dark" active-name="option1">
-                    <Submenu name="1">
-                        <template slot="title">
-                            <Icon type="ios-person"></Icon>
-                            人员管理
-                        </template>
-                        <MenuItem name="addStaff" to="/addStaff">
-                            <Icon type="md-person-add" />
-                            <span>添加员工</span>
-                        </MenuItem>
-                        <MenuItem name="updateStaff">
-                            <Icon type="ios-construct" />
-                            <span>修改员工信息</span>
-                        </MenuItem>
-                        <MenuItem name="staffList" to="/staffList">
-                            <Icon type="ios-eye" />
-                            <span>查看员工</span>
-                        </MenuItem>
-                    </Submenu>
-                    <Submenu name="2">
-                        <template slot="title">
-                            <Icon type="ios-people" />
-                            分组管理
-                        </template>
-                        <MenuItem name="addGroup" to="/addGroup">
-                            <Icon type="ios-add" />
-                            <span>添加分组</span>
-                        </MenuItem>
-                        <MenuItem name="2-2">
-                            <Icon type="ios-eye" />
-                            <span>查看分组</span>
-                        </MenuItem>
-                    </Submenu>
+                    <MenuItem name="staffManage" to="/staffManage">
+                        <Icon type="ios-man" />
+                        <span>管理员工</span>
+                    </MenuItem>
+                    <MenuItem name="groupManage" to="/groupManage">
+                        <Icon type="ios-people" />
+                        <span>管理分组</span>
+                    </MenuItem>
                 </Menu>
             </Sider>
             <Content class="content" :class="{ 'content-expand': isCollapsed }">
@@ -98,9 +74,6 @@
             </Content>
         </Layout>
 
-        <Drawer title="选择配色" v-model="openTheme" :closable="false">
-
-        </Drawer>
     </Layout>
 </template>
 <script>
