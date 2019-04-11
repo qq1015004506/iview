@@ -15,12 +15,12 @@
                                     </Select>
                                 </FormItem>
                                 <FormItem label="小组信息"><Input v-model="group.info" type="textarea" :rows="6"/> </FormItem>
-                                    <Button type="primary" @click="handleSubmit" size="large">更新信息</Button>
+                                <Button type="primary" @click="handleSubmit" size="large">更新信息</Button>
                             </i-col>
                             <i-col span="18">
                                 <Row>
                                     <FormItem label="组内成员">
-                                        <Table @on-selection-change="onSelect" border ref="selection" :columns="columns" :data="data"></Table>
+                                        <Table @on-selection-change="onSelect" border ref="selection" :columns="columns" :data="staff"></Table>
                                     </FormItem>
                                 </Row>
                             </i-col>
@@ -124,15 +124,22 @@
                         key: 'groupName'
                     }
                 ],
-                data: [],
+                staff: [],
+                group:{},
             }
         },
         methods:{
             getData(){
-              let url = 'http://localhost:8888/group/staff'
-              axios.get(url).then(res=>{
-                  this.data = res.data;
-              })
+
+                let url = 'http://localhost:8888/group'
+                axios.get(url+'/staff').then(res=>{
+                    this.staff = res.data;
+                })
+
+                axios.get(url+'/'+this.$route.query.id).then(res=>{
+                    this.group = res.data
+                })
+
             },
             onSelect(selection) {
                 this.group.staffs = selection
@@ -147,6 +154,7 @@
             },
         },
         mounted(){
+
             this.getData();
         }
     }

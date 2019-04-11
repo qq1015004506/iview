@@ -5,40 +5,40 @@
 </style>
 <template>
     <div>
-        <Row class="expand-row">
-            <Col span="8">
-                <span class="expand-key">Job: </span>
-                <span class="expand-value">{{ row.job }}</span>
+        <Row class="expand-row" v-for="staff in row.staffs">
+            <Col span="6">
+                <span class="expand-key">name: </span>
+                <span class="expand-value">{{ staff.name }}</span>
             </Col>
-            <Col span="8">
-                <span class="expand-key">Interest: </span>
-                <span class="expand-value">{{ row.interest }}</span>
+            <Col span="6">
+                <span class="expand-key">job: </span>
+                <span class="expand-value">{{ displayJob(staff.job) }}</span>
             </Col>
-            <Col span="8">
-                <span class="expand-key">Birthday: </span>
-                <span class="expand-value">{{ row.birthday }}</span>
+            <Col span="6">
+                <span class="expand-key">phone: </span>
+                <span class="expand-value">{{ staff.phone }}</span>
             </Col>
-        </Row>
-        <Row>
-            <Col span="8">
-                <span class="expand-key">Favorite book: </span>
-                <span class="expand-value">《{{ row.book }}》</span>
-            </Col>
-            <Col span="8">
-                <span class="expand-key">Favorite movie: </span>
-                <span class="expand-value">{{ row.movie }}</span>
-            </Col>
-            <Col span="8">
-                <span class="expand-key">Favorite music: </span>
-                <span class="expand-value">{{ row.music }}</span>
+            <Col span="6" v-show="staff.id === row.leaderId">
+                <span class="expand-value"> 组长 </span>
             </Col>
         </Row>
+
     </div>
 </template>
 <script>
     export default {
         props: {
             row: Object
+        },
+        methods:{
+            displayJob(job) {
+                if(job === 1)
+                    return "产品经理"
+                if(job === 2)
+                    return "开发人员"
+                if(job === 3)
+                    return "测试人员"
+            }
         }
     };
 </script>

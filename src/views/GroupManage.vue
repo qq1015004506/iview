@@ -1,16 +1,31 @@
 <template>
     <dev-article>
         <div style="padding: 32px 64px;">
-            <Table :columns="columns" :data="data"></Table>
+            <Button to="/addGroup" type="primary" icon="md-add-circle">
+                <span>添加</span>
+            </Button>
+            <Table border :columns="columns" :data="data"></Table>
+            <div style="text-align: center; margin: 16px 0">
+                <Page :total="total"
+                      :current.sync="current"
+                      show-sizer
+                      @on-change="getData"
+                      @on-page-size-change="handleChangeSize"></Page>
+            </div>
         </div>
+
     </dev-article>
 </template>
 <script>
     import expandRow from './table-expand.vue';
+    import axios from 'axios'
     export default {
         components: { expandRow },
         data () {
             return {
+                total:0,
+                current:1,
+                size:10,
                 columns: [
                     {
                         type: 'expand',
@@ -24,65 +39,88 @@
                         }
                     },
                     {
-                        title: 'Name',
+                        title: '小组名称',
                         key: 'name'
                     },
                     {
-                        title: 'Age',
-                        key: 'age'
+                        title: '小组信息',
+                        key: 'info'
                     },
                     {
-                        title: 'Address',
-                        key: 'address'
+                        title: 'Action',
+                        key: 'action',
+                        width: 200,
+                        align: 'center',
+                        render: (h, params) => {
+                            console.log(params.row)
+                            return h('div', [
+                                h('Button', {
+                                    props: {
+                                        type: 'success',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                        marginRight: '5px'
+                                    },
+                                    on: {
+                                        click: () => {
+                                        }
+                                    }
+                                }, '详情'),
+                                h('Button', {
+                                    props: {
+                                        type: 'primary',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                        marginRight: '5px'
+                                    },
+                                    on: {
+                                        click: () => {
+                                            this.$router.push({
+                                                path:'/updateGroup',
+                                                query:{
+                                                    id:params.row.id
+                                                }
+                                            })
+                                        }
+                                    }
+                                }, '修改'),
+                                h('Button', {
+                                    props: {
+                                        type: 'error',
+                                        size: 'small'
+                                    },
+                                    on: {
+                                        click: () => {
+                                        }
+                                    }
+                                }, '删除')
+                            ]);
+                        }
                     }
                 ],
-                data: [
-                    {
-                        name: 'John Brown',
-                        age: 18,
-                        address: 'New York No. 1 Lake Park',
-                        job: 'Data engineer',
-                        interest: 'badminton',
-                        birthday: '1991-05-14',
-                        book: 'Steve Jobs',
-                        movie: 'The Prestige',
-                        music: 'I Cry'
-                    },
-                    {
-                        name: 'Jim Green',
-                        age: 25,
-                        address: 'London No. 1 Lake Park',
-                        job: 'Data Scientist',
-                        interest: 'volleyball',
-                        birthday: '1989-03-18',
-                        book: 'My Struggle',
-                        movie: 'Roman Holiday',
-                        music: 'My Heart Will Go On'
-                    },
-                    {
-                        name: 'Joe Black',
-                        age: 30,
-                        address: 'Sydney No. 1 Lake Park',
-                        job: 'Data Product Manager',
-                        interest: 'tennis',
-                        birthday: '1992-01-31',
-                        book: 'Win',
-                        movie: 'Jobs',
-                        music: 'Don’t Cry'
-                    },
-                    {
-                        name: 'Jon Snow',
-                        age: 26,
-                        address: 'Ottawa No. 2 Lake Park',
-                        job: 'Data Analyst',
-                        interest: 'snooker',
-                        birthday: '1988-7-25',
-                        book: 'A Dream in Red Mansions',
-                        movie: 'A Chinese Ghost Story',
-                        music: 'actor'
-                    }
-                ]
+                data: []
             }
+        },
+        methods:{
+            getData() {
+                axios.get("http://localhost:8888/group").then(res => {
+                    this.data = res.data;
+                }).catch(err => {
+                    this.$Message.error(err.message)
+                })
+            },
+            handleChangeSize(val){
+                this.size = val
+                this.$nextTick(()=>{
+                    this.getData();
+                })
+            },
+
+        },
+        mounted(){
+            this.getData();
         }
     }
 </script>
