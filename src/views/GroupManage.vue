@@ -78,7 +78,7 @@
                                     on: {
                                         click: () => {
                                             this.$router.push({
-                                                path:'/updateGroup',
+                                                path: '/updateGroup',
                                                 query:{
                                                     id:params.row.id
                                                 }
@@ -93,6 +93,12 @@
                                     },
                                     on: {
                                         click: () => {
+                                            axios.delete('http://localhost:8888/group/'+params.row.id).then(() => {
+                                                this.$Message.success('删除成功');
+                                                this.getData();
+                                            }).catch( err=>{
+                                                this.$Message.error(err.message);
+                                            })
                                         }
                                     }
                                 }, '删除')

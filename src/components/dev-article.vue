@@ -61,11 +61,15 @@
                 <Menu class="sider-menu" theme="dark" active-name="option1">
                     <MenuItem name="staffManage" to="/staffManage">
                         <Icon type="ios-man" />
-                        <span>管理员工</span>
+                        <span>员工管理</span>
                     </MenuItem>
                     <MenuItem name="groupManage" to="/groupManage">
                         <Icon type="ios-people" />
-                        <span>管理分组</span>
+                        <span>分组管理</span>
+                    </MenuItem>
+                    <MenuItem name="taskManage" to="/taskManage">
+                        <Icon type="md-clipboard" />
+                        <span>任务管理</span>
                     </MenuItem>
                 </Menu>
             </Sider>

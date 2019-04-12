@@ -6,15 +6,15 @@
                     <Row style="padding: 16px" :gutter="64" >
                         <Form label-position="top">
                             <i-col span="6">
-                                <FormItem label="组名"><Input v-model="group.name"/> </FormItem>
+                                <FormItem label="组名"><Input v-model="updateGroup.name"/> </FormItem>
                                 <FormItem label="组长">
-                                    <Select v-model="group.leaderId" transfer>
-                                        <Option v-for="user in group.staffs" :value="user.id">
+                                    <Select v-model="updateGroup.leaderId" transfer>
+                                        <Option v-for="user in updateGroup.staffs" :value="user.id">
                                             {{user.name}}
                                         </Option>
                                     </Select>
                                 </FormItem>
-                                <FormItem label="小组信息"><Input v-model="group.info" type="textarea" :rows="6"/> </FormItem>
+                                <FormItem label="小组信息"><Input v-model="updateGroup.info" type="textarea" :rows="6"/> </FormItem>
                                 <Button type="primary" @click="handleSubmit" size="large">更新信息</Button>
                             </i-col>
                             <i-col span="18">
@@ -37,7 +37,7 @@
     export default {
         data () {
             return {
-                group: {
+                updateGroup: {
                     name: '',
                     info: '',
                     leaderId:-1,
@@ -125,29 +125,63 @@
                     }
                 ],
                 staff: [],
+                groupStaff:[],
                 group:{},
             }
         },
         methods:{
             getData(){
 
-                let url = 'http://localhost:8888/group'
-                axios.get(url+'/staff').then(res=>{
+                let url = 'http://localhost:8888'
+                let wait1 = false;
+                let wait2 = false;
+                axios.get(url+'/group/staff').then(res=>{
                     this.staff = res.data;
+                    console.log("staff :" ,this.staff)
+                    wait1 = true;
+                    if(wait2) {
+                        for (let i = 0; i < this.updateGroup.staffs.length; i++) {
+                            for (let j = 0; j < this.staff.length; j++) {
+
+                                console.log("staffs[i]:", this.updateGroup.staffs[i])
+                                console.log("staff[j]:", this.staff[j])
+                                if (this.updateGroup.staffs[i].id + '' === this.staff[j].id + '') {
+                                    console.log("staff[j]:", this.staff[j])
+                                    this.staff[j]._checked = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
                 })
 
-                axios.get(url+'/'+this.$route.query.id).then(res=>{
-                    this.group = res.data
+                axios.get(url+'/group/'+this.$route.query.id).then(res=>{
+                    this.updateGroup = res.data;
+                    console.log("updateGroup :" , this.updateGroup)
+                    wait2 = true
+                    if(wait1) {
+                        for (let i = 0; i < this.updateGroup.staffs.length; i++) {
+                            for (let j = 0; j < this.staff.length; j++) {
+                                console.log("staffs[i]:", this.updateGroup.staffs[i])
+                                console.log("staff[j]:", this.staff[j])
+                                if (this.updateGroup.staffs[i].id + '' === this.staff[j].id + '') {
+                                    this.staff[j]._checked = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
                 })
 
             },
             onSelect(selection) {
-                this.group.staffs = selection
+                this.updateGroup.leaderId = -1
+                this.updateGroup.staffs = selection
             },
             handleSubmit(){
-                console.log(this.group)
-                axios.post('http://localhost:8888/group',this.group).then(() => {
-                    this.$Message.success("添加成功");
+                axios.put('http://localhost:8888/group',this.updateGroup).then(() => {
+                    this.$Message.success("修改成功");
+                    this.getData();
                 }).catch(err =>{
                     this.$Message.error(err.message)
                 })
