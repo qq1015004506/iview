@@ -13,11 +13,8 @@
                         <FormItem label="任务起止时间:">
                             <DatePicker v-model="time" type="daterange" split-panels transfer placement="bottom-end" placeholder="Select date" ></DatePicker>
                         </FormItem>
-                        <FormItem label="任务量:">
-                            <Input v-model="task.quantity" clearable placeholder="请输入任务量" />
-                        </FormItem>
                         <FormItem>
-                            <Button type="primary" @click="handleSubmit('formValidate')">Submit</Button>
+                            <Button type="primary" @click="handleSubmit">Submit</Button>
                         </FormItem>
 
                 </i-col>
@@ -47,7 +44,7 @@
                     endTime:'',
                     quantity:'',
                     filePath:'',
-                    stage:'',
+                    stage:0,
                     staffId:null,
                     groupId:null,
                 },
@@ -82,18 +79,20 @@
             handleSubmit(){
                 this.task.startTime = this.time[0].valueOf();
                 this.task.endTime = this.time[1].valueOf();
-
+                this.task.fatherId = this.$route.query.id;
+                this.task.filePath = this.$route.query.filePath +'/'+this.task.name
+                this.task.quantity = (this.task.endTime - this.task.startTime)/86400000;
                 console.log(this.task)
-                // axios.post('http://localhost:8888/group',this.group).then(() => {
-                //     this.$Message.success("添加成功");
-                //     this.$router.push({
-                //         path: '/groupManage',
-                //     })
-                // }).catch(err =>{
-                //     this.$Message.error(err.message)
-                // })
+                axios.post('http://localhost:8888/task',this.task).then(() => {
+                    this.$Message.success("添加成功");
+                    this.$router.push({
+                        path: '/taskManage',
+                    })
+                }).catch(err =>{
+                    this.$Message.error(err.message)
+                })
             },
-            selectGroup(currentRow){
+            selectGroup(currentRow) {
                 this.task.groupId = currentRow.id;
                 console.log(this.task)
             }

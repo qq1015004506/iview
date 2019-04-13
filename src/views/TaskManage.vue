@@ -5,15 +5,15 @@
             <Row>
                 <Card style="height: 800px">
                     <i-col span="4">
-                        <Badge status="success" text="已完成" />
-                        <br />
-                        <Badge status="error" text="过期" />
-                        <br />
                         <Badge status="default" text="未分配" />
                         <br />
                         <Badge status="processing" text="正在进行" />
                         <br />
                         <Badge status="warning" text="即将过期" />
+                        <br />
+                        <Badge status="error" text="过期" />
+                        <br />
+                        <Badge status="success" text="已完成" />
                     </i-col>
                     <i-col span="20">
                         <Tree :data="taskData" :render="renderContent"></Tree>
@@ -26,78 +26,37 @@
 </template>
 
 <script>
+    import axios from 'axios'
     export default {
         name: "TaskManage",
         data() {
             return{
                 value:"",
-                taskData: [
-                    {
-                        title: 'parent 1',
-                        expand: true,
-                        finished: false,
-                        desc:'/app',
-                        children: [
-                            {
-                                title: 'child 1-1',
-                                expand: true,
-                                finished: true,
-                                desc:'/app',
-                                children: [
-                                    {
-                                        title: 'leaf 1-1-1',
-                                        finished: true,
-                                        desc:'/app',
-                                        expand: true
-                                    },
-                                    {
-                                        title: 'leaf 1-1-2',
-                                        finished: true,
-                                        desc:'/app',
-                                        expand: true
-                                    }
-                                ]
-                            },
-                            {
-                                title: 'child 1-2',
-                                expand: true,
-                                finished: false,
-                                desc:'/app',
-                                children: [
-                                    {
-                                        title: 'leaf 1-2-1',
-                                        finished: false,
-                                        desc:'/app',
-                                        expand: true
-                                    },
-                                    {
-                                        title: 'leaf 1-2-1',
-                                        finished: true,
-                                        desc:'/app',
-                                        expand: true
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ],
+                taskData: [],
             }
         },
         methods:{
             handleRender (node) {
-
-                console.log(node)
                 this.$Modal.confirm({
                     render: (h) => {
                         return h('div', [
-                            h('span','请问要对'+node.node.title+'节点进行何种操作'),
+                            h('span','请问要对'+node.node.name+'节点进行何种操作'),
                             h('br'),
                             h('span',
                                 [
                                     h('Button', {
                                         on:{
                                             'click':()=>{
-                                                this.$Message.success(node.node.title+':' + '添加子节点')
+                                                console.log(node)
+                                                this.$Message.success(node.node.name+':' + '添加子节点');
+                                                this.$router.push({
+                                                    path: '/addTask',
+                                                    query:{
+                                                        id:node.node.id,
+                                                        filePath:node.node.filePath
+                                                    }
+                                                })
+                                                this.$Modal.remove()
                                             }
                                         },
                                         style: {
@@ -108,7 +67,7 @@
                                     h('Button', {
                                         on: {
                                             'click': () => {
-                                                this.$Message.success(node.node.title+':' + '修改节点信息')
+                                                this.$Message.success(node.node.name+':' + '修改节点信息')
                                             }
                                         },
                                         style: {
@@ -119,7 +78,7 @@
                                     h('Button',{
                                         on: {
                                             'click': () => {
-                                                this.$Message.success(node.node.title+':' + '删除节点')
+                                                this.$Message.success(node.node.name+':' + '删除节点')
                                             }
                                         },
                                         style: {
@@ -130,7 +89,7 @@
                                     h('Button',{
                                         on: {
                                             'click': () => {
-                                                this.$Message.success(node.node.title+':' + '查看详情')
+                                                this.$Message.success(node.node.name+':' + '查看详情')
                                             }
                                         },
                                         style: {
@@ -143,10 +102,21 @@
                 })
             },
             renderContent (h, { root, node, data }) {
-                let type = 'error';
-                if(data.finished)
-                    type = 'success';
-                console.log(data.desc)
+                let type = 'processing';
+                switch(data.stage){
+                    case 0:
+                        type = 'default'; break;
+                    case 1:
+                        type = 'primary'; break;
+                    case 2:
+                        type = 'warning'; break;
+                    case 3:
+                        type = 'error'; break;
+                    case 4:
+                        type = 'success'; break;
+                    default:
+                        type = 'error'; break;
+                }
                 return h('Button', {
                     props: {
                         type:type,
@@ -171,7 +141,7 @@
                                 marginRight: '8px'
                             }
                         }),
-                        h('span', data.title)
+                        h('span', data.name)
                     ]),
                     h('span', {
                         style: {
@@ -182,7 +152,17 @@
                     })
                 ]);
             },
+            getData(){
+                axios.get('http://localhost:8888/task').then(res=>{
+                    this.taskData = [res.data]
+                }).catch(err =>{
+                    this.$Message.error(err.message)
+                })
+            }
         },
+        mounted(){
+            this.getData();
+        }
     }
 </script>
 

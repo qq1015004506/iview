@@ -138,7 +138,6 @@
                 this.group.staffs = selection
             },
             handleSubmit(){
-                console.log(this.group)
                 axios.post('http://localhost:8888/group',this.group).then(() => {
                     this.$Message.success("添加成功");
                     this.$router.push({
