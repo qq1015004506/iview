@@ -16,9 +16,6 @@
                         <Badge status="warning" text="即将过期" />
                     </i-col>
                     <i-col span="20">
-                        <Button to="/addTask" type="primary" icon="md-add-circle">
-                            <span>添加任务</span>
-                        </Button>
                         <Tree :data="taskData" :render="renderContent"></Tree>
                     </i-col>
                 </Card>
@@ -33,46 +30,13 @@
         name: "TaskManage",
         data() {
             return{
+                value:"",
                 taskData: [
                     {
                         title: 'parent 1',
                         expand: true,
                         finished: false,
                         desc:'/app',
-                        render: (h, { root, node, data }) => {
-                            let type = 'error';
-                            if(data.finished)
-                                type = 'success';
-                            return h('Button', {
-                                props: {
-                                    type:type,
-                                    size:'small',
-                                    to: data.desc
-                                },
-                                style: {
-                                    display: 'inline-block',
-                                }
-                            }, [
-                                h('span', [
-                                    h('Icon', {
-                                        props: {
-                                            type: 'ios-folder-outline'
-                                        },
-                                        style: {
-                                            marginRight: '8px'
-                                        }
-                                    }),
-                                    h('span', data.title)
-                                ]),
-                                h('span', {
-                                    style: {
-                                        display: 'inline-block',
-                                        float: 'right',
-                                        marginRight: '32px'
-                                    }
-                                })
-                            ]);
-                        },
                         children: [
                             {
                                 title: 'child 1-1',
@@ -120,6 +84,64 @@
             }
         },
         methods:{
+            handleRender (node) {
+
+                console.log(node)
+                this.$Modal.confirm({
+                    render: (h) => {
+                        return h('div', [
+                            h('span','请问要对'+node.node.title+'节点进行何种操作'),
+                            h('br'),
+                            h('span',
+                                [
+                                    h('Button', {
+                                        on:{
+                                            'click':()=>{
+                                                this.$Message.success(node.node.title+':' + '添加子节点')
+                                            }
+                                        },
+                                        style: {
+                                            size:'small',
+                                            display: 'inline-block',
+                                        },
+                                    },'添加子节点'),
+                                    h('Button', {
+                                        on: {
+                                            'click': () => {
+                                                this.$Message.success(node.node.title+':' + '修改节点信息')
+                                            }
+                                        },
+                                        style: {
+                                            size: 'small',
+                                            display: 'inline-block',
+                                        }
+                                    },'修改节点信息'),
+                                    h('Button',{
+                                        on: {
+                                            'click': () => {
+                                                this.$Message.success(node.node.title+':' + '删除节点')
+                                            }
+                                        },
+                                        style: {
+                                            size: 'small',
+                                            display: 'inline-block',
+                                        }
+                                    },'删除节点'),
+                                    h('Button',{
+                                        on: {
+                                            'click': () => {
+                                                this.$Message.success(node.node.title+':' + '查看详情')
+                                            }
+                                        },
+                                        style: {
+                                            size: 'small',
+                                            display: 'inline-block',
+                                        }
+                                    },'查看详情')])
+                        ])
+                    }
+                })
+            },
             renderContent (h, { root, node, data }) {
                 let type = 'error';
                 if(data.finished)
@@ -129,7 +151,11 @@
                     props: {
                         type:type,
                         size:'small',
-                        to: data.desc
+                    },
+                    on:{
+                        'click':()=>{
+                            this.handleRender(node);
+                        }
                     },
                     style: {
                         size:'small',

@@ -1,17 +1,32 @@
 <template>
     <dev-article>
-        <Card>
-            <Row>
-                <Form label-position="top">
-                    <i-col span="10">
-                        <FormItem label="任务名称"><Input v-model="form.name"/></FormItem>
-                        <FormItem label="任务父节点"><Input v-model="form.path" readonly/></FormItem>
-                        <FormItem label="任务描述"><Input type="textarea" v-model="form.desc"/></FormItem>
-                        <Button type="primary" size="large">更新信息</Button>
-                    </i-col>
-                    <i-col span="10" offset="4">
-                        <Tree :data="data1"  @on-select-change="hello" ></Tree>
-                    </i-col>
+        <Card shadow :padding="0">
+            <Row style="padding: 16px" :gutter="64" >
+                <Form>
+                <i-col span="6">
+                        <FormItem label="任务名称:">
+                            <Input v-model="task.name" clearable placeholder="请输入任务名称" />
+                        </FormItem>
+                        <FormItem label="任务描述:">
+                            <Input type="textarea" v-model="task.description" clearable placeholder="请输入任务描述" />
+                        </FormItem>
+                        <FormItem label="任务起止时间:">
+                            <DatePicker v-model="time" type="daterange" split-panels transfer placement="bottom-end" placeholder="Select date" ></DatePicker>
+                        </FormItem>
+                        <FormItem label="任务量:">
+                            <Input v-model="task.quantity" clearable placeholder="请输入任务量" />
+                        </FormItem>
+                        <FormItem>
+                            <Button type="primary" @click="handleSubmit('formValidate')">Submit</Button>
+                        </FormItem>
+
+                </i-col>
+                <i-col span="18">
+                    <FormItem label="分配小组">
+                        <br>
+                        <Table highlight-row @on-current-change="selectGroup" ref="currentRowTable" border :columns="columns" :data="data"></Table>
+                    </FormItem>
+                </i-col>
                 </Form>
             </Row>
         </Card>
@@ -19,53 +34,72 @@
 </template>
 
 <script>
+    import axios from 'axios'
     export default {
-        name: "AddTask",
         data () {
             return {
-                data1: [
+                time:[],
+                task: {
+                    name: '',
+                    fatherId:-1,
+                    description:'',
+                    startTime:'',
+                    endTime:'',
+                    quantity:'',
+                    filePath:'',
+                    stage:'',
+                    staffId:null,
+                    groupId:null,
+                },
+                columns: [
                     {
-                        title: 'parent 1',
-                        expand: true,
-                        children: [
-                            {
-                                title: 'parent 1-1',
-                                expand: true,
-                                children: [
-                                    {
-                                        title: 'leaf 1-1-1'
-                                    },
-                                    {
-                                        title: 'leaf 1-1-2'
-                                    }
-                                ]
-                            },
-                            {
-                                title: 'parent 1-2',
-                                expand: true,
-                                children: [
-                                    {
-                                        title: 'leaf 1-2-1'
-                                    },
-                                    {
-                                        title: 'leaf 1-2-2'
-                                    }
-                                ]
-                            }
-                        ]
-                    }
+                        type: 'index',
+                        width: 60,
+                        align: 'center'
+                    },
+                    {
+                        title: '小组名称',
+                        key: 'name'
+                    },
+                    {
+                        title: '小组信息',
+                        key: 'info'
+                    },
+                    {
+                        title: '工作量',
+                        key: 'count'
+                    },
                 ],
-                form:{
-                    name:"",
-                    path:"",
-                    desc:""
-                }
+                data: [],
             }
         },
         methods:{
-            hello (e){
-                this.form.path = e[0].title
+            getData(){
+                axios.get("http://localhost:8888/group/count").then(res=>{
+                    this.data = res.data
+                })
             },
+            handleSubmit(){
+                this.task.startTime = this.time[0].valueOf();
+                this.task.endTime = this.time[1].valueOf();
+
+                console.log(this.task)
+                // axios.post('http://localhost:8888/group',this.group).then(() => {
+                //     this.$Message.success("添加成功");
+                //     this.$router.push({
+                //         path: '/groupManage',
+                //     })
+                // }).catch(err =>{
+                //     this.$Message.error(err.message)
+                // })
+            },
+            selectGroup(currentRow){
+                this.task.groupId = currentRow.id;
+                console.log(this.task)
+            }
+        },
+        mounted(){
+            this.getData();
         }
     }
 </script>
