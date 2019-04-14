@@ -64,6 +64,12 @@
                                     },
                                     on: {
                                         click: () => {
+                                            this.$router.push({
+                                                path: '/groupDetail',
+                                                query:{
+                                                    id:params.row.id
+                                                }
+                                            })
                                         }
                                     }
                                 }, '详情'),

@@ -1,29 +1,35 @@
 <template>
     <dev-article>
         <div style="padding: 32px 64px;">
-
-            <Row>
-                <Card style="height: 800px">
-                    <i-col span="4">
-                        <Badge status="default" text="未分配" />
-                        <br />
-                        <Badge status="processing" text="正在进行" />
-                        <br />
-                        <Badge status="warning" text="即将过期" />
-                        <br />
-                        <Badge status="error" text="过期" />
-                        <br />
-                        <Badge status="success" text="已完成" />
-                    </i-col>
-                    <i-col span="20">
-                        <Tree :data="taskData" :render="renderContent"></Tree>
-                    </i-col>
-                </Card>
-            </Row>
+            <Form inline :label-width="80">
+                <FormItem label="任务名称：">
+                    <Input clearable  v-model="query.name" placeholder="请输入" style="width: 200px;" />
+                </FormItem>
+                <FormItem label="员工名称：">
+                    <Input clearable v-model="query.staffName" placeholder="请输入" style="width: 200px;" />
+                </FormItem>
+                <FormItem label="任务分组：">
+                    <Select clearable v-model="query.group" placeholder="请选择" style="width: 200px;">
+                        <Option v-for="group in queryGroup" :value="group.id">{{group.name}}</Option>
+                    </Select>
+                </FormItem>
+                <Button type="primary" @click="queryData" style="margin-right: 8px">查询</Button>
+                <Button @click="handleQueryReset">重置</Button>
+            </Form>
+            <Button type="primary" icon="md-add" to="/addTask">新建</Button>
+            <Table :columns="columns" :data="data" :loading="loading" border size="small"></Table>
+            <div style="text-align: center; margin: 16px 0">
+                <Page :total="total"
+                      :current.sync="current"
+                      show-sizer
+                      @on-change="getData"
+                      @on-page-size-change="handleChangeSize"></Page>
+            </div>
 
         </div>
     </dev-article>
 </template>
+
 
 <script>
     import axios from 'axios'
@@ -31,136 +37,199 @@
         name: "TaskManage",
         data() {
             return{
-                value:"",
-                taskData: [],
+                queryGroup:[],
+                query:{
+                    name:null,
+                    group:null,
+                    staffName:null,
+                },
+                data:[],
+                columns: [
+                    {
+                        title: '任务名称',
+                        key: 'name'
+                    },
+                    {
+                        title: '任务信息',
+                        key: 'description'
+                    },
+                    {
+                        title: '员工名称',
+                        key: 'staffName'
+                    },
+                    {
+                        title: '小组名称',
+                        key: 'groupName'
+                    },
+                    {
+                        title: '开始时间',
+                        key: 'startTime',
+                        render: (h, {row, index}) => {
+                            return h('Time',{
+                                props:{
+                                    time: (new Date(row.startTime)).getTime() - 86400 * 3 * 1000,
+                                    type:'date'
+                                }
+                            })
+                        }
+                    },
+                    {
+                        title: '结束时间',
+                        key: 'endTime',
+                        render: (h, {row, index}) => {
+                            return h('Time',{
+                                props:{
+                                    time: (new Date(row.endTime)).getTime() - 86400 * 3 * 1000,
+                                    type:'date'
+                                }
+                            })
+                        }
+                    },
+                    {
+                        title: '状态',
+                        key: 'stage',
+                        render: (h, {row, index}) => {
+
+                            let edit;
+
+                            if (row.stage === 1 || row.stage === "1") {
+                                edit = h('Badge', {
+                                    props: {
+                                        status: 'default',
+                                        text: '未分配'
+                                    }
+                                })
+                            } else if (row.stage === 2 || row.stage === "2") {
+                                edit = h('Badge', {
+                                    props: {
+                                        status: 'processing',
+                                        text: '开发中'
+                                    }
+                                })
+                            } else if (row.stage === 3 || row.stage === "3") {
+                                edit = h('Badge', {
+                                    props: {
+                                        status: 'warning',
+                                        text: '未通过测试'
+                                    }
+                                })
+                            }else if (row.stage === 4 || row.stage === "4") {
+                                edit = h('Badge', {
+                                    props: {
+                                        status: 'success',
+                                        text: '任务完成'
+                                    }
+                                })
+                            }else if (row.stage === 5 || row.stage === "5") {
+                                edit = h('Badge', {
+                                    props: {
+                                        status: 'error',
+                                        text: '任务过期'
+                                    }
+                                })
+                            }
+
+                            return h('div', [edit]);
+
+                        }
+                    },
+                    {
+                        title: 'Action',
+                        key: 'action',
+                        width: 150,
+                        align: 'center',
+                        render: (h, params) => {
+                            console.log(params.row)
+                            return h('div', [
+                                h('Button', {
+                                    props: {
+                                        type: 'primary',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                        marginRight: '5px'
+                                    },
+                                    on: {
+                                        click: () => {
+                                            this.$router.push({
+                                                path: '/updateTask',
+                                                query:{
+                                                    id:params.row.id,
+                                                }
+                                            })
+                                        }
+                                    }
+                                }, '修改'),
+                                h('Button', {
+                                    props: {
+                                        type: 'error',
+                                        size: 'small'
+                                    },
+                                    on: {
+                                        click: () => {
+                                            axios.delete('http://localhost:8888/task/'+params.row.id).then(() => {
+                                                this.$Message.success('删除成功');
+                                                this.getData();
+                                            }).catch( err=>{
+                                                this.$Message.error(err.message);
+                                            })
+                                        }
+                                    }
+                                }, '删除')
+                            ]);
+                        }
+                    }
+                ],
+
+                loading: false,
+                current: 1,
+                size:10,
+                total:0,
             }
         },
         methods:{
-            handleRender (node) {
-                this.$Modal.confirm({
-                    render: (h) => {
-                        return h('div', [
-                            h('span','请问要对'+node.node.name+'节点进行何种操作'),
-                            h('br'),
-                            h('span',
-                                [
-                                    h('Button', {
-                                        on:{
-                                            'click':()=>{
-                                                console.log(node)
-                                                this.$Message.success(node.node.name+':' + '添加子节点');
-                                                this.$router.push({
-                                                    path: '/addTask',
-                                                    query:{
-                                                        id:node.node.id,
-                                                        filePath:node.node.filePath
-                                                    }
-                                                })
-                                                this.$Modal.remove()
-                                            }
-                                        },
-                                        style: {
-                                            size:'small',
-                                            display: 'inline-block',
-                                        },
-                                    },'添加子节点'),
-                                    h('Button', {
-                                        on: {
-                                            'click': () => {
-                                                this.$Message.success(node.node.name+':' + '修改节点信息')
-                                            }
-                                        },
-                                        style: {
-                                            size: 'small',
-                                            display: 'inline-block',
-                                        }
-                                    },'修改节点信息'),
-                                    h('Button',{
-                                        on: {
-                                            'click': () => {
-                                                this.$Message.success(node.node.name+':' + '删除节点')
-                                            }
-                                        },
-                                        style: {
-                                            size: 'small',
-                                            display: 'inline-block',
-                                        }
-                                    },'删除节点'),
-                                    h('Button',{
-                                        on: {
-                                            'click': () => {
-                                                this.$Message.success(node.node.name+':' + '查看详情')
-                                            }
-                                        },
-                                        style: {
-                                            size: 'small',
-                                            display: 'inline-block',
-                                        }
-                                    },'查看详情')])
-                        ])
-                    }
-                })
-            },
-            renderContent (h, { root, node, data }) {
-                let type = 'processing';
-                switch(data.stage){
-                    case 0:
-                        type = 'default'; break;
-                    case 1:
-                        type = 'primary'; break;
-                    case 2:
-                        type = 'warning'; break;
-                    case 3:
-                        type = 'error'; break;
-                    case 4:
-                        type = 'success'; break;
-                    default:
-                        type = 'error'; break;
-                }
-                return h('Button', {
-                    props: {
-                        type:type,
-                        size:'small',
-                    },
-                    on:{
-                        'click':()=>{
-                            this.handleRender(node);
-                        }
-                    },
-                    style: {
-                        size:'small',
-                        display: 'inline-block',
-                    },
-                }, [
-                    h('span', [
-                        h('Icon', {
-                            props: {
-                                type: 'ios-paper-outline'
-                            },
-                            style: {
-                                marginRight: '8px'
-                            }
-                        }),
-                        h('span', data.name)
-                    ]),
-                    h('span', {
-                        style: {
-                            display: 'inline-block',
-                            float: 'right',
-                            marginRight: '32px'
-                        }
-                    })
-                ]);
-            },
+
             getData(){
-                axios.get('http://localhost:8888/task').then(res=>{
-                    this.taskData = [res.data]
-                }).catch(err =>{
-                    this.$Message.error(err.message)
+
+                if(this.loading) return;
+                this.loading = true;
+                let path = 'http://localhost:8888/task/query?current='+this.current+'&size='+this.size;
+                if(this.query.name)
+                    path += '&name=' + this.query.name;
+                if(this.query.staffName)
+                    path += '&staffName=' + this.query.staffName;
+                if(this.query.group)
+                    path += '&group=' + this.query.group;
+                axios.get(path).then(res=>{
+                    this.data = res.data.data;
+                    this.total = res.data.total;
+                });
+                this.loading = false;
+            },
+            handleChangeSize(val) {
+                this.size = val;
+                this.$nextTick(()=>{
+                    this.getData();
                 })
+            },
+            queryData(){
+                this.getData()
+            },
+            handleQueryReset(){
+                this.query.group = null;
+                this.query.name = null;
+                this.query.staffName = null;
+                this.getData();
             }
         },
         mounted(){
+
+            axios.get('http://localhost:8888/group').then(res=>{
+                this.queryGroup = res.data;
+            }).catch(err=>{
+                this.$Message.error(err.message())
+            });
+
             this.getData();
         }
     }

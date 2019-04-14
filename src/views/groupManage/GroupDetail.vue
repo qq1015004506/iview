@@ -9,7 +9,7 @@
                         </Tooltip>
                         <Row>
                             <i-col span="24">
-                                <Table :columns="tableColumns" :data="tableData"></Table>
+                                <Table highlight-row @on-current-change="rowChange" :columns="tableColumns" :data="tableData"></Table>
                             </i-col>
                         </Row>
 
@@ -38,7 +38,6 @@
     export default {
         data () {
             return {
-
                 tableColumns: [
                     {
                         title: '小组成员',
@@ -55,26 +54,27 @@
 
 
                 ],
-                tableData: [
-                    {
-                        name: '关羽',
-                        process: '10',
-                        total:'20',
-                    },
-                    {
-                        name: '张飞',
-                        process: '15',
-                        total:'20',
-                    },
-                    {
-                        name: '刘备',
-                        process: '20',
-                        total:'20',
-                    },
-                ]
+                tableData: [],
+                staffTaskInfo:[],
+                groupTaskInfo:{
+                    staffNames:[],
+                    groupTaskInfo:[]
+                }
             }
         },
         methods: {
+            rowChange(currentRow){
+                this.staffTaskInfo = []
+                var t = currentRow.tasks
+                for (let i = 0; i < t.length; i++) {
+                    this.staffTaskInfo.push({
+                        name:t[i].name,
+                        value:t[i].quantity
+                    })
+                }
+
+                this.initChart();
+            },
             initChart () {
                 const myChart1 = echarts.init(this.$refs.chart1)
                 const myChart2 = echarts.init(this.$refs.chart2)
@@ -88,7 +88,7 @@
                     legend: {
                         orient: 'vertical',
                         x: 'left',
-                        data:['关羽已完成','关羽未完成','张飞已完成','张飞未完成','刘备已完成']
+                        data:this.groupTaskInfo.staffNames
                     },
                     series: [
                         {
@@ -114,19 +114,13 @@
                                     show: false
                                 }
                             },
-                            data:[
-                                {value:10, name:'关羽已完成'},
-                                {value:10, name:'关羽未完成'},
-                                {value:15, name:'张飞已完成'},
-                                {value:5, name:'张飞未完成'},
-                                {value:20, name:'刘备已完成'}
-                            ]
+                            data:this.groupTaskInfo.groupTaskInfo
                         }
                     ]
                 };
                 let option2 = {
                     title : {
-                        text: '任务完成情况',
+                        text: '个人任务占比情况',
                         x:'center'
                     },
                     tooltip : {
@@ -139,10 +133,7 @@
                             type: 'pie',
                             radius : '55%',
                             center: ['50%', '60%'],
-                            data:[
-                                {value:45, name:'已完成'},
-                                {value:15, name:'未完成'}
-                            ],
+                            data:this.staffTaskInfo,
                             itemStyle: {
                                 emphasis: {
                                     shadowBlur: 10,
@@ -154,17 +145,50 @@
                     ]
                 };
 
-                myChart1.setOption(option1);
-                myChart2.setOption(option2);
+                myChart1.setOption(option1,true);
+                myChart2.setOption(option2,true);
             },
             getData() {
-                let path = 'http://localhost:8888/staff'
-                axios.get('')
+                let path = 'http://localhost:8888/group/'+this.$route.query.id+'/staffTask'
+                axios.get(path).then(res=>{
+                    this.tableData = res.data
+
+                    if(res.data.length === 0)
+                        return;
+                    this.staffTaskInfo = []
+                    this.tableData[0]._highlight = true
+                    var t = this.tableData[0].tasks
+                    for (let i = 0; i < t.length; i++) {
+                        this.staffTaskInfo.push({
+                            name:t[i].name,
+                            value:t[i].quantity
+                        })
+                    }
+
+                    this.groupTaskInfo.groupTaskInfo = []
+                    this.groupTaskInfo.staffNames = []
+                    for (let i = 0; i < this.tableData.length; i++) {
+                        this.groupTaskInfo.staffNames.push(this.tableData[i].name)
+                        let val = 0;
+                        for (let j = 0; j < this.tableData[i].tasks.length; j++) {
+                            val += this.tableData[i].tasks[j].quantity
+                        }
+                        this.groupTaskInfo.groupTaskInfo.push({
+                            name:this.tableData[i].name,
+                            value:val,
+                        })
+                    }
+
+                    this.initChart();
+                }).catch(err=>{
+                    this.$Message.error(err.message())
+                })
+
             },
 
         },
         mounted () {
-            this.initChart();
+            this.getData();
         }
     }
 </script>

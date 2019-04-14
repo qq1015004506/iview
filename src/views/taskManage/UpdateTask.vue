@@ -113,26 +113,30 @@
             },
             getData(){
                 axios.get("http://localhost:8888/group").then(res=>{
-
                     console.log("data",res.data);
                     this.data = res.data
                     this.staffs = this.data[this.group].staffs;
                 })
+                console.log(this.$route.query.id)
+                axios.get("http://localhost:8888/task/"+this.$route.query.id).then(res=>{
+                    this.task = res.data
+                    this.time = [new Date(this.task.startTime),new Date(this.task.endTime)]
+                })
+
             },
             handleSubmit(){
                 this.task.startTime = this.time[0].valueOf();
                 this.task.endTime = this.time[1].valueOf();
                 this.task.quantity = (this.task.endTime - this.task.startTime)/86400000;
-                this.task.stage = 2;
                 console.log(this.task)
-                axios.post('http://localhost:8888/task',this.task).then(() => {
-                    this.$Message.success("添加成功");
-                    this.$router.push({
-                        path: '/taskManage',
-                    })
-                }).catch(err =>{
-                    this.$Message.error(err.message)
-                })
+                // axios.post('http://localhost:8888/task',this.task).then(() => {
+                //     this.$Message.success("添加成功");
+                //     this.$router.push({
+                //         path: '/taskManage',
+                //     })
+                // }).catch(err =>{
+                //     this.$Message.error(err.message)
+                // })
             },
             selectStaff(currentRow) {
                 this.task.staffId = currentRow.id;
