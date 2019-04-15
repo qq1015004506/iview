@@ -142,7 +142,7 @@
                     {
                         title: 'Action',
                         key: 'action',
-                        width: 200,
+                        width: 250,
                         align: 'center',
                         render: (h, params) => {
                             console.log(params)
@@ -176,7 +176,7 @@
                                     on: {
                                         click: () => {
                                             this.$router.push({
-                                                path: '/updateTask',
+                                                path: '/coder/version',
                                                 query:{
                                                     id:params.row.id,
                                                 }
@@ -184,6 +184,25 @@
                                         }
                                     }
                                 }, '查看详情'),
+                                h('Button', {
+                                    props: {
+                                        type: 'error',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                        marginRight: '5px'
+                                    },
+                                    on: {
+                                        click: () => {
+                                            this.$router.push({
+                                                path: '/coder/diff',
+                                                query:{
+                                                    id:params.row.id,
+                                                }
+                                            })
+                                        }
+                                    }
+                                }, '查看不同'),
                             ]);
                         }
                     }

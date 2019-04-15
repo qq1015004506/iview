@@ -1,26 +1,29 @@
 <template>
     <dev-article>
-        <Row :gutter="64">
-            <Form>
-            <i-col span="10">
-                <FormItem label="代码版本">
-                    <br>
-                    <Table highlight-row @on-current-change="selectCode" ref="currentRowTable" border :columns="columns" :data="data"></Table>
-                </FormItem>
-                <FormItem>
-                    <Button @click="changeTaskCodeInfo">修改版本</Button>
-                </FormItem>
-            </i-col>
-            <i-col span="13" >
-                <FormItem label="代码">
+        <Form>
+            <Row :gutter="64">
+                <i-col span="12">
+                    <FormItem label="原始版本">
+                        <br>
+                        <Table highlight-row @on-current-change="leftSelectCode" ref="currentRowTable" border :columns="columns" :data="data"></Table>
+                    </FormItem>
+                </i-col>
+                <i-col span="12">
+                    <FormItem label="修改版本">
+                        <br>
+                        <Table highlight-row @on-current-change="rightSelectCode" ref="currentRowTable" border :columns="columns" :data="data"></Table>
+                    </FormItem>
+                </i-col>
+            </Row>
+            <Row>
+                <FormItem label="代码比较结果">
                     <br>
                     <div class="myEditor">
                         <div id="container" ref="container" style="height:600px"></div>
                     </div>
                 </FormItem>
-            </i-col>
-            </Form>
-        </Row>
+            </Row>
+        </Form>
 
     </dev-article>
 </template>
@@ -63,60 +66,60 @@
                         key: 'commit'
                     },
                 ],
-                code:'',
                 allCode:[],
-                codeInfo:{},
-
-
+                left:'',
+                right:'',
             }
         },
         methods:{
-            changeTaskCodeInfo(){
-                axios.put("http://localhost:8888/task/"+this.codeInfo.taskId + "/codeId/"+this.codeInfo.id).then(()=>{
-                    this.$Message.success("修改成功")
-                }).catch(err=>{
-                    this.$Message.error(err.message)
-                })
-            },
             getData() {
                 axios.get("http://localhost:8888/file/task/"+this.$route.query.id).then(res=>{
-                    this.data = res.data
+                    this.data = res.data;
                     for (let i = 0; i < this.data.length; i++) {
                         this.data[i].index = i;
                         this.data[i]._highlight = false;
                     }
-                    if(this.data.length) {
+                    if(this.data.length)
                         this.data[0]._highlight = true;
-                        this.codeInfo = this.data[0];
-                    }
                 })
                 axios.get("http://localhost:8888/file/task/"+this.$route.query.id+"/details").then(res=>{
                     this.allCode = res.data
-                    if(this.allCode.length)
-                    this.code = this.allCode[0];
+                    if(this.allCode.length) {
+                        this.left = this.allCode[0];
+                        this.right = this.allCode[0];
+                    }
                     this.initEditor();
                 })
             },
             initEditor(){
                 let self = this;
                 self.$refs.container.innerHTML = '';
-                self.monacoEditor = monaco.editor.create(self.$refs.container, {
-                    value:self.code,
-                    language: 'java',
-                    theme: 'vs',
-                    editorOptions:self.editorOptions,
+                self.monacoEditor = monaco.editor.createDiffEditor(self.$refs.container, {
+                    enableSplitViewResizing: false,
+                    automaticLayout: true,
+                    readOnly: true
                 });
+
+                this.monacoEditor.setModel({
+                    original:monaco.editor.createModel(this.left, 'java'),
+                    modified:monaco.editor.createModel(this.right, 'java'),
+                })
+
+
             },
 
-            selectCode(row){
-                this.code = this.allCode[row.index];
-                this.codeInfo = row;
+            leftSelectCode(row){
+                this.left = this.allCode[row.index];
+                this.initEditor();
+            },
+            rightSelectCode(row) {
+                this.right = this.allCode[row.index];
                 this.initEditor();
             }
         },
         mounted(){
-            this.code = this.allCode[0];
             this.getData()
+            this.initEditor();
         },
     }
 </script>
