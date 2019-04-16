@@ -7,6 +7,7 @@
                     <br>
                     <Table highlight-row @on-current-change="selectCode" ref="currentRowTable" border :columns="columns" :data="data"></Table>
                 </FormItem>
+
                 <FormItem>
                     <Button @click="changeTaskCodeInfo">修改版本</Button>
                 </FormItem>
@@ -87,13 +88,9 @@
                     }
                     if(this.data.length) {
                         this.data[0]._highlight = true;
-                        this.codeInfo = this.data[0];
+                        this.code = this.data[0].codeDetail;
                     }
-                })
-                axios.get("http://localhost:8888/file/task/"+this.$route.query.id+"/details").then(res=>{
-                    this.allCode = res.data
-                    if(this.allCode.length)
-                    this.code = this.allCode[0];
+
                     this.initEditor();
                 })
             },
@@ -116,7 +113,7 @@
         },
         mounted(){
             this.code = this.allCode[0];
-            this.getData()
+            this.getData();
         },
     }
 </script>

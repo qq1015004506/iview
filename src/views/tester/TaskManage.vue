@@ -1,25 +1,6 @@
 <template>
     <dev-article>
         <div style="padding: 32px 64px;">
-            <Form inline :label-width="80">
-                <FormItem label="任务名称：">
-                    <Input clearable  v-model="query.name" placeholder="请输入" style="width: 200px;" />
-                </FormItem>
-                <FormItem label="员工名称：">
-                    <Input clearable v-model="query.staffName" placeholder="请输入" style="width: 200px;" />
-                </FormItem>
-                <FormItem label="任务分组：">
-                    <Select clearable v-model="query.group" placeholder="请选择" style="width: 200px;">
-                        <Option v-for="group in queryGroup" :value="group.id">{{group.name}}</Option>
-                    </Select>
-                </FormItem>
-                <Button type="primary" @click="queryData" style="margin-right: 8px">查询</Button>
-                <Button @click="handleQueryReset">重置</Button>
-            </Form>
-
-            <Button type="primary" icon="md-add" to="/addDevTask">新建开发任务</Button>
-
-
             <Table :columns="columns" :data="data" :loading="loading" border size="small"></Table>
             <div style="text-align: center; margin: 16px 0">
                 <Page :total="total"
@@ -28,7 +9,6 @@
                       @on-change="getData"
                       @on-page-size-change="handleChangeSize"></Page>
             </div>
-
         </div>
     </dev-article>
 </template>
@@ -40,7 +20,15 @@
         name: "TaskManage",
         data() {
             return{
+                row:4,
+                fileInfo:{
+                    staffId:0,
+                    taskId:0,
+                    commit:'',
+                },
+                openUpload:false,
                 queryGroup:[],
+
                 query:{
                     name:null,
                     group:null,
@@ -55,14 +43,6 @@
                     {
                         title: '任务信息',
                         key: 'description'
-                    },
-                    {
-                        title: '员工名称',
-                        key: 'staffName'
-                    },
-                    {
-                        title: '小组名称',
-                        key: 'groupName'
                     },
                     {
                         title: '开始时间',
@@ -139,10 +119,11 @@
                     {
                         title: 'Action',
                         key: 'action',
-                        width: 200,
+                        width: 250,
                         align: 'center',
                         render: (h, params) => {
-                            let sub = [
+                            console.log(params)
+                            return h('div', [
                                 h('Button', {
                                     props: {
                                         type: 'primary',
@@ -153,15 +134,33 @@
                                     },
                                     on: {
                                         click: () => {
+                                            this.fileInfo.taskId = params.row.id;
+                                            this.fileInfo.staffId = params.row.staffId;
+                                            this.fileInfo.commit = '';
+                                            this.$refs.upload.clearFiles();
+                                            this.openUpload = true;
+                                        }
+                                    }
+                                }, '提交任务'),
+                                h('Button', {
+                                    props: {
+                                        type: 'success',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                        marginRight: '5px'
+                                    },
+                                    on: {
+                                        click: () => {
                                             this.$router.push({
-                                                path: '/updateTask',
+                                                path: '/coder/version',
                                                 query:{
                                                     id:params.row.id,
                                                 }
                                             })
                                         }
                                     }
-                                }, '修改'),
+                                }, '查看详情'),
                                 h('Button', {
                                     props: {
                                         type: 'error',
@@ -172,37 +171,16 @@
                                     },
                                     on: {
                                         click: () => {
-                                            axios.delete('http://localhost:8888/task/'+params.row.id).then(() => {
-                                                this.$Message.success('删除成功');
-                                                this.getData();
-                                            }).catch( err=>{
-                                                this.$Message.error(err.message);
+                                            this.$router.push({
+                                                path: '/coder/diff',
+                                                query:{
+                                                    id:params.row.id,
+                                                }
                                             })
                                         }
                                     }
-                                }, '删除')
-                            ];
-                            if(params.row.stage === 1 ||params.row.stage === "1" )
-                                sub.push(
-                                    h('Button', {
-                                        props: {
-                                            type: 'success',
-                                            size: 'small'
-                                        },
-                                        on: {
-                                            click: () => {
-                                                this.$router.push({
-                                                    path: '/addTestTask',
-                                                    query:{
-                                                        id:params.row.id,
-                                                    }
-                                                })
-                                            }
-                                        }
-                                    }, '分配')
-                                )
-                            console.log(params.row)
-                            return h('div', sub);
+                                }, '查看不同'),
+                            ]);
                         }
                     }
                 ],
@@ -214,22 +192,24 @@
             }
         },
         methods:{
-
+            handleError(error){
+                this.$Message.success("上传失败:" + error)
+                this.openUpload = false;
+            },
+            handleSuccess() {
+                this.$Message.success("上传成功")
+                this.openUpload = false;
+            },
             getData(){
 
                 if(this.loading) return;
                 this.loading = true;
-                let path = 'http://localhost:8888/task/query?current='+this.current+'&size='+this.size;
-                if(this.query.name)
-                    path += '&name=' + this.query.name;
-                if(this.query.staffName)
-                    path += '&staffName=' + this.query.staffName;
-                if(this.query.group)
-                    path += '&group=' + this.query.group;
+                let path = 'http://localhost:8888/task/staff/'+10;
+
                 axios.get(path).then(res=>{
-                    this.data = res.data.data;
-                    this.total = res.data.total;
+                    this.data = res.data;
                 });
+                console.log(this.data)
                 this.loading = false;
             },
             handleChangeSize(val) {
@@ -237,6 +217,13 @@
                 this.$nextTick(()=>{
                     this.getData();
                 })
+            },
+            handleBeforeUpload() {
+                if (this.fileInfo.commit.length === 0) {
+                    this.$Notice.warning({title:"请输入提交信息"});
+                    return false;
+                }
+                return true;
             },
             queryData(){
                 this.getData()
@@ -249,13 +236,6 @@
             }
         },
         mounted(){
-
-            axios.get('http://localhost:8888/group').then(res=>{
-                this.queryGroup = res.data;
-            }).catch(err=>{
-                this.$Message.error(err.message())
-            });
-
             this.getData();
         }
     }

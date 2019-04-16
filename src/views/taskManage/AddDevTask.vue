@@ -109,14 +109,14 @@
         },
         methods:{
             selectChange(val){
-                this.staffs = this.data[val].staffs;
+                this.staffs = this.data[val].staffs.filter(s=>s.job === 2);
             },
             getData(){
                 axios.get("http://localhost:8888/group").then(res=>{
 
                     console.log("data",res.data);
                     this.data = res.data
-                    this.staffs = this.data[this.group].staffs;
+                    this.staffs = this.data[this.group].staffs.filter(s=>s.job === 2);
                 })
             },
             handleSubmit(){

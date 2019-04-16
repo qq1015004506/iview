@@ -52,6 +52,7 @@
                     endTime:'',
                     quantity:'',
                     filePath:'',
+                    codeId:0,
                     stage:0,
                     staffId:null,
                 },
@@ -109,28 +110,24 @@
         },
         methods:{
             selectChange(val){
-                this.staffs = this.data[val].staffs.filter(s=>s.job === 2);
+                this.staffs = this.data[val].staffs.filter(s=>s.job === 3);
             },
             getData(){
                 axios.get("http://localhost:8888/group").then(res=>{
                     console.log("data",res.data);
                     this.data = res.data
-                    this.staffs = this.data[this.group].staffs.filter(s=>s.job === 2);
+                    this.staffs = this.data[this.group].staffs.filter(s=>s.job === 3);
                 })
-                console.log(this.$route.query.id)
-                axios.get("http://localhost:8888/task/"+this.$route.query.id).then(res=>{
-                    this.task = res.data
-                    this.time = [new Date(this.task.startTime),new Date(this.task.endTime)]
-                })
-
             },
             handleSubmit(){
                 this.task.startTime = this.time[0].valueOf();
                 this.task.endTime = this.time[1].valueOf();
                 this.task.quantity = (this.task.endTime - this.task.startTime)/86400000;
+                this.task.stage = 3;
+                this.task.codeId = this.$route.query.id;
                 console.log(this.task)
-                axios.put('http://localhost:8888/task/test',this.task).then(() => {
-                    this.$Message.success("更新成功");
+                axios.post('http://localhost:8888/task',this.task).then(() => {
+                    this.$Message.success("添加成功");
                     this.$router.push({
                         path: '/taskManage',
                     })

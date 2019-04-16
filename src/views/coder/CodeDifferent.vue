@@ -66,7 +66,6 @@
                         key: 'commit'
                     },
                 ],
-                allCode:[],
                 left:'',
                 right:'',
             }
@@ -75,18 +74,14 @@
             getData() {
                 axios.get("http://localhost:8888/file/task/"+this.$route.query.id).then(res=>{
                     this.data = res.data;
+                    console.log(this.data)
                     for (let i = 0; i < this.data.length; i++) {
-                        this.data[i].index = i;
                         this.data[i]._highlight = false;
                     }
-                    if(this.data.length)
+                    if(this.data.length) {
                         this.data[0]._highlight = true;
-                })
-                axios.get("http://localhost:8888/file/task/"+this.$route.query.id+"/details").then(res=>{
-                    this.allCode = res.data
-                    if(this.allCode.length) {
-                        this.left = this.allCode[0];
-                        this.right = this.allCode[0];
+                        this.left = this.data[0].codeDetail;
+                        this.right = this.data[0].codeDetail;
                     }
                     this.initEditor();
                 })
@@ -109,17 +104,16 @@
             },
 
             leftSelectCode(row){
-                this.left = this.allCode[row.index];
+                this.left = row.codeDetail;
                 this.initEditor();
             },
             rightSelectCode(row) {
-                this.right = this.allCode[row.index];
+                this.right = row.codeDetail;
                 this.initEditor();
             }
         },
         mounted(){
-            this.getData()
-            this.initEditor();
+            this.getData();
         },
     }
 </script>

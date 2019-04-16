@@ -71,6 +71,14 @@
                         <Icon type="md-clipboard" />
                         <span>任务管理</span>
                     </MenuItem>
+                    <MenuItem name="coder" to="/coder/task">
+                        <Icon type="md-clipboard" />
+                        <span>开发人员</span>
+                    </MenuItem>
+                    <MenuItem name="tester" to="/tester/task">
+                        <Icon type="md-clipboard" />
+                        <span>测试人员</span>
+                    </MenuItem>
                 </Menu>
             </Sider>
             <Content class="content" :class="{ 'content-expand': isCollapsed }">

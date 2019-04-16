@@ -39,8 +39,10 @@
 
 <script>
     import axios from 'axios'
+    import expandRow from './TaskTableExpand';
     export default {
         name: "TaskManage",
+        components: { expandRow },
         data() {
             return{
                 row:4,
@@ -59,6 +61,17 @@
                 },
                 data:[],
                 columns: [
+                    {
+                        type: 'expand',
+                        width: 50,
+                        render: (h, params) => {
+                            return h(expandRow, {
+                                props: {
+                                    row: params.row
+                                }
+                            })
+                        }
+                    },
                     {
                         title: '任务名称',
                         key: 'name'
@@ -116,21 +129,21 @@
                                 edit = h('Badge', {
                                     props: {
                                         status: 'warning',
-                                        text: '未通过测试'
+                                        text: '测试中'
                                     }
                                 })
                             }else if (row.stage === 4 || row.stage === "4") {
                                 edit = h('Badge', {
                                     props: {
-                                        status: 'success',
-                                        text: '任务完成'
+                                        status: 'error',
+                                        text: '未通过测试'
                                     }
                                 })
                             }else if (row.stage === 5 || row.stage === "5") {
                                 edit = h('Badge', {
                                     props: {
-                                        status: 'error',
-                                        text: '任务过期'
+                                        status: 'success',
+                                        text: '任务完成'
                                     }
                                 })
                             }
