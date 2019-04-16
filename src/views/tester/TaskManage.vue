@@ -10,6 +10,11 @@
                       @on-page-size-change="handleChangeSize"></Page>
             </div>
         </div>
+        <Modal v-model="openCreate" title="添加评论">
+            <Input v-model="task.evaluation" type="textarea" :rows=5 placeholder="Enter something..." />
+            <Button slot="footer" type="primary" @click="passhandleSubmit">通过</Button>
+            <Button slot="footer" type="error" @click="errorhandleSubmit" style="margin-left: 8px">存在BUG</Button>
+        </Modal>
     </dev-article>
 </template>
 
@@ -20,19 +25,12 @@
         name: "TaskManage",
         data() {
             return{
-                row:4,
-                fileInfo:{
-                    staffId:0,
-                    taskId:0,
-                    commit:'',
-                },
-                openUpload:false,
-                queryGroup:[],
-
-                query:{
-                    name:null,
-                    group:null,
-                    staffName:null,
+                openCreate: false,
+                task:{
+                    id:0,
+                    codeId:0,
+                    stage:0,
+                    evaluation:'',
                 },
                 data:[],
                 columns: [
@@ -111,9 +109,7 @@
                                     }
                                 })
                             }
-
                             return h('div', [edit]);
-
                         }
                     },
                     {
@@ -134,14 +130,10 @@
                                     },
                                     on: {
                                         click: () => {
-                                            this.fileInfo.taskId = params.row.id;
-                                            this.fileInfo.staffId = params.row.staffId;
-                                            this.fileInfo.commit = '';
-                                            this.$refs.upload.clearFiles();
-                                            this.openUpload = true;
+                                            window.open("http://localhost:8888/file/"+params.row.codeId, '_blank');
                                         }
                                     }
-                                }, '提交任务'),
+                                }, '下载文件'),
                                 h('Button', {
                                     props: {
                                         type: 'success',
@@ -152,15 +144,13 @@
                                     },
                                     on: {
                                         click: () => {
-                                            this.$router.push({
-                                                path: '/coder/version',
-                                                query:{
-                                                    id:params.row.id,
-                                                }
-                                            })
+                                            console.log(params.row)
+                                            this.openCreate = true;
+                                            this.task.codeId = params.row.codeId;
+                                            this.task.id = params.row.id;
                                         }
                                     }
-                                }, '查看详情'),
+                                }, '进行评测'),
                                 h('Button', {
                                     props: {
                                         type: 'error',
@@ -174,7 +164,7 @@
                                             this.$router.push({
                                                 path: '/coder/diff',
                                                 query:{
-                                                    id:params.row.id,
+                                                    id:params.row.codeId,
                                                 }
                                             })
                                         }
@@ -184,22 +174,14 @@
                         }
                     }
                 ],
-
                 loading: false,
                 current: 1,
                 size:10,
                 total:0,
+
             }
         },
         methods:{
-            handleError(error){
-                this.$Message.success("上传失败:" + error)
-                this.openUpload = false;
-            },
-            handleSuccess() {
-                this.$Message.success("上传成功")
-                this.openUpload = false;
-            },
             getData(){
 
                 if(this.loading) return;
@@ -212,28 +194,51 @@
                 console.log(this.data)
                 this.loading = false;
             },
+            passhandleSubmit() {
+                this.$Modal.confirm({
+                    title: 'confirm',
+                    content: '确定通过测试吗?',
+                    onOk: () => {
+                        this.task.stage = 5;
+                        axios.put("http://localhost:8888/task/eval",this.task).then(()=>{
+                            this.$Message.success("测试完成");
+                            this.openCreate = false;
+                        }).catch(err=>{
+                            this.$Message.error(err.message);
+                        })
+                    },
+                    onCancel: () => {
+                        this.$Message.info('Clicked cancel');
+                    }
+                });
+            },
+            errorhandleSubmit() {
+                this.$Modal.confirm({
+                    title: 'confirm',
+                    content: '确定存在BUG吗?',
+                    onOk: () => {
+                        this.task.stage = 4
+                        axios.put("http://localhost:8888/task/eval",this.task).then(()=>{
+                            this.$Message.success("测试完成");
+                            this.openCreate = false;
+                        }).catch(err=>{
+                            this.$Message.error(err.message);
+                        })
+                    },
+                    onCancel: () => {
+                        this.$Message.info('Clicked cancel');
+                    }
+                });
+            },
             handleChangeSize(val) {
                 this.size = val;
                 this.$nextTick(()=>{
                     this.getData();
                 })
             },
-            handleBeforeUpload() {
-                if (this.fileInfo.commit.length === 0) {
-                    this.$Notice.warning({title:"请输入提交信息"});
-                    return false;
-                }
-                return true;
-            },
             queryData(){
                 this.getData()
             },
-            handleQueryReset(){
-                this.query.group = null;
-                this.query.name = null;
-                this.query.staffName = null;
-                this.getData();
-            }
         },
         mounted(){
             this.getData();

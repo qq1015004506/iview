@@ -172,7 +172,12 @@
                                     },
                                     on: {
                                         click: () => {
-                                            axios.delete('http://localhost:8888/task/'+params.row.id).then(() => {
+                                            let path ='';
+                                            if(params.row.isTest)
+                                                path = 'http://localhost:8888/task/'+params.row.id;
+                                            else
+                                                path = 'http://localhost:8888/task/test/'+params.row.id+'/'+params.row.codeId;
+                                            axios.delete(path).then(() => {
                                                 this.$Message.success('删除成功');
                                                 this.getData();
                                             }).catch( err=>{
@@ -182,6 +187,7 @@
                                     }
                                 }, '删除')
                             ];
+
                             if(params.row.stage === 1 ||params.row.stage === "1" )
                                 sub.push(
                                     h('Button', {
@@ -211,7 +217,7 @@
                 current: 1,
                 size:10,
                 total:0,
-            }
+        }
         },
         methods:{
 

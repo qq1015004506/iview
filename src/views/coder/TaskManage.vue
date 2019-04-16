@@ -235,6 +235,7 @@
             handleSuccess() {
                 this.$Message.success("上传成功")
                 this.openUpload = false;
+                this.getData();
             },
             getData(){
 

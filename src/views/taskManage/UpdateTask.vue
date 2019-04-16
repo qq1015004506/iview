@@ -129,7 +129,7 @@
                 this.task.endTime = this.time[1].valueOf();
                 this.task.quantity = (this.task.endTime - this.task.startTime)/86400000;
                 console.log(this.task)
-                axios.put('http://localhost:8888/task/test',this.task).then(() => {
+                axios.put('http://localhost:8888/task',this.task).then(() => {
                     this.$Message.success("更新成功");
                     this.$router.push({
                         path: '/taskManage',

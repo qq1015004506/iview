@@ -124,9 +124,10 @@
                 this.task.endTime = this.time[1].valueOf();
                 this.task.quantity = (this.task.endTime - this.task.startTime)/86400000;
                 this.task.stage = 3;
+                this.task.isTest = 1;
                 this.task.codeId = this.$route.query.id;
                 console.log(this.task)
-                axios.post('http://localhost:8888/task',this.task).then(() => {
+                axios.post('http://localhost:8888/task/test',this.task).then(() => {
                     this.$Message.success("添加成功");
                     this.$router.push({
                         path: '/taskManage',

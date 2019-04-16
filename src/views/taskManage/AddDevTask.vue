@@ -124,6 +124,7 @@
                 this.task.endTime = this.time[1].valueOf();
                 this.task.quantity = (this.task.endTime - this.task.startTime)/86400000;
                 this.task.stage = 2;
+                this.task.isTest = 0;
                 console.log(this.task)
                 axios.post('http://localhost:8888/task',this.task).then(() => {
                     this.$Message.success("添加成功");
