@@ -6,7 +6,7 @@
                     <img src="../assets/logo.png" alt="logo" class="logo">
                 </i-col>
                 <i-col span="14">
-                    <div style="width: 100%;height: 1px"></div>
+                    <div style="height: 1px; width: 100%;"></div>
                 </i-col>
                 <i-col span="4">
                     <Row>
@@ -29,21 +29,13 @@
         <Layout>
             <Sider class="sider" width="240">
                 <Menu class="sider-menu" theme="dark" active-name="option1">
-                    <MenuItem name="home" to="/app">
+                    <MenuItem name="app" to="/tester/app">
                         <Icon type="ios-home" />
-                        <span>我的主页</span>
+                        <span>我的首页</span>
                     </MenuItem>
-                    <MenuItem name="staffManage" to="/staffManage">
-                        <Icon type="ios-man" />
-                        <span>员工管理</span>
-                    </MenuItem>
-                    <MenuItem name="groupManage" to="/groupManage">
-                        <Icon type="ios-people" />
-                        <span>分组管理</span>
-                    </MenuItem>
-                    <MenuItem name="taskManage" to="/taskManage">
+                    <MenuItem name="task" to="/tester/task">
                         <Icon type="md-clipboard" />
-                        <span>任务管理</span>
+                        <span>查看任务</span>
                     </MenuItem>
                 </Menu>
             </Sider>
@@ -67,7 +59,7 @@
         },
         methods:{
             goHome() {
-                this.$router.push("/coder/app")
+                this.$router.push("/tester/app")
             },
             exit() {
                 window.localStorage.removeItem("admin");

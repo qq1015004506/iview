@@ -1,5 +1,5 @@
 <template>
-    <dev-article>
+    <coder-article>
         <div style="padding: 32px 64px;">
             <Table :columns="columns" :data="data" :loading="loading" border size="small"></Table>
             <div style="text-align: center; margin: 16px 0">
@@ -9,7 +9,7 @@
                       @on-change="getData"
                       @on-page-size-change="handleChangeSize"></Page>
             </div>
-            <Modal v-model="openUpload" title="添加成员">
+            <Modal v-model="openUpload" title="上传文件">
                 <Form>
                     <FormItem label="提交信息">
                         <Input v-model="fileInfo.commit" type="textarea" :rows="row"/>
@@ -33,7 +33,7 @@
                 </Form>
             </Modal>
         </div>
-    </dev-article>
+    </coder-article>
 </template>
 
 
@@ -65,6 +65,7 @@
                         type: 'expand',
                         width: 50,
                         render: (h, params) => {
+                            console.log("123",params.row)
                             return h(expandRow, {
                                 props: {
                                     row: params.row
@@ -158,7 +159,6 @@
                         width: 250,
                         align: 'center',
                         render: (h, params) => {
-                            console.log(params)
                             return h('div', [
                                 h('Button', {
                                     props: {
@@ -241,7 +241,7 @@
 
                 if(this.loading) return;
                 this.loading = true;
-                let path = 'http://localhost:8888/task/staff/'+7;
+                let path = 'http://localhost:8888/task/staff/'+window.localStorage.getItem("id");
 
                 axios.get(path).then(res=>{
                     this.data = res.data;

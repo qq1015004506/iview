@@ -1,5 +1,5 @@
 <template>
-    <dev-article>
+    <coder-article>
         <Form>
             <Row :gutter="64">
                 <i-col span="12">
@@ -25,7 +25,7 @@
             </Row>
         </Form>
 
-    </dev-article>
+    </coder-article>
 </template>
 
 <script>

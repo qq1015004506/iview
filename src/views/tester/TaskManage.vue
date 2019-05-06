@@ -1,5 +1,5 @@
 <template>
-    <dev-article>
+    <tester-article>
         <div style="padding: 32px 64px;">
             <Table :columns="columns" :data="data" :loading="loading" border size="small"></Table>
             <div style="text-align: center; margin: 16px 0">
@@ -15,7 +15,7 @@
             <Button slot="footer" type="primary" @click="passhandleSubmit">通过</Button>
             <Button slot="footer" type="error" @click="errorhandleSubmit" style="margin-left: 8px">存在BUG</Button>
         </Modal>
-    </dev-article>
+    </tester-article>
 </template>
 
 

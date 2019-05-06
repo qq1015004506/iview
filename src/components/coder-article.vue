@@ -29,21 +29,14 @@
         <Layout>
             <Sider class="sider" width="240">
                 <Menu class="sider-menu" theme="dark" active-name="option1">
-                    <MenuItem name="home" to="/app">
+                    <MenuItem name="app" to="/coder/app">
                         <Icon type="ios-home" />
                         <span>我的主页</span>
                     </MenuItem>
-                    <MenuItem name="staffManage" to="/staffManage">
-                        <Icon type="ios-man" />
-                        <span>员工管理</span>
-                    </MenuItem>
-                    <MenuItem name="groupManage" to="/groupManage">
-                        <Icon type="ios-people" />
-                        <span>分组管理</span>
-                    </MenuItem>
-                    <MenuItem name="taskManage" to="/taskManage">
+
+                    <MenuItem name="task" to="/coder/task">
                         <Icon type="md-clipboard" />
-                        <span>任务管理</span>
+                        <span>查看任务</span>
                     </MenuItem>
                 </Menu>
             </Sider>
