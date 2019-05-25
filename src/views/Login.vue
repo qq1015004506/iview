@@ -11,7 +11,7 @@
 
             <Card>
                 <p slot="title">
-                    基于MVC的代码管理系统
+                    基于MVC的在线代码管理系统
                 </p>
                 <h1></h1>
                 <Form ref="staff" :model="staff" :rules="ruleInline" >

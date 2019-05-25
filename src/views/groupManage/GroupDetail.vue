@@ -41,18 +41,9 @@
                 tableColumns: [
                     {
                         title: '小组成员',
-                        key: 'name'
+                        key: 'name',
+                        align:'center'
                     },
-                    {
-                        title: '工作进度',
-                        key: 'process'
-                    },
-                    {
-                        title: '工作总量',
-                        key: 'total'
-                    },
-
-
                 ],
                 tableData: [],
                 staffTaskInfo:[],
@@ -152,7 +143,7 @@
                 let path = 'http://localhost:8888/group/'+this.$route.query.id+'/staffTask'
                 axios.get(path).then(res=>{
                     this.tableData = res.data
-
+                    console.log(this.tableData)
                     if(res.data.length === 0)
                         return;
                     this.staffTaskInfo = []

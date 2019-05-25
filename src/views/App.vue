@@ -1,10 +1,22 @@
 <template>
     <dev-article>
+        <Row :gutter="16">
+            <i-col span="12">
+                <Card shadow style="margin-top: 16px">
+                    <div style="width: 100%;height: 400px;" ref="chart1"></div>
+                </Card>
+            </i-col>
+            <i-col span="12">
+                <Card shadow style="margin-top: 16px">
+                    <div style="width: 100%;height: 400px;" ref="chart3"></div>
+                </Card>
+            </i-col>
+        </Row>
 
         <Card shadow style="margin-top: 16px">
             <Row>
                 <i-col span="18">
-                    <div style="width: 100%;height: 400px;" ref="chart"></div>
+                    <div style="width: 100%;height: 350px;" ref="chart2"></div>
                 </i-col>
                 <i-col span="6">
                     <Table :columns="tableColumns" :data="tableData"></Table>
@@ -21,23 +33,10 @@
         props: {},
         data () {
             return {
-                shortcuts: [
-                    {
-                        title: '操作一',
-                        action: '/app'
-                    },
-                    {
-                        title: '操作二',
-                        action: '/push'
-                    }
+                dateList: [],
+                taskRatioList:[
+
                 ],
-                newShortcut: {
-                    status: false,
-                    title: '',
-                    action: ''
-                },
-                dateType: 'day',  // day, week, month, year
-                countDate: [new Date(), new Date()],
                 tableColumns: [
                     {
                         type: 'index'
@@ -58,28 +57,50 @@
         },
         computed: {},
         methods: {
-            handleAddNewShortcut () {
-                this.shortcuts.push({
-                    title: this.newShortcut.title,
-                    action: this.newShortcut.action
-                });
+            initChart3() {
+
+
+                const myChart = echarts.init(this.$refs.chart3)
+                const option = {
+                    title: {
+                        text: '任务状态比例'
+                    },
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: "{a} <br/>{b}: {c} ({d}%)"
+                    },
+                    series: [
+                        {
+                            name:'类别',
+                            type:'pie',
+                            radius: ['50%', '70%'],
+                            avoidLabelOverlap: false,
+                            label: {
+                                normal: {
+                                    show: false,
+                                    position: 'center'
+                                },
+                                emphasis: {
+                                    show: true,
+                                    textStyle: {
+                                        fontSize: '30',
+                                        fontWeight: 'bold'
+                                    }
+                                }
+                            },
+                            labelLine: {
+                                normal: {
+                                    show: false
+                                }
+                            },
+                            data:this.taskRatioList
+                        }
+                    ]
+                };
+                myChart.setOption(option);
             },
-            handleSetDate (type) {
-                const today = (new Date()).getTime();
-                let date;
-
-                switch (type) {
-                    case 'day': date = today;break;
-                    case 'week': date = today - 86400000 * 7;break;
-                    case 'month': date = today - 86400000 * 30;break;
-                    case 'year': date = today - 86400000 * 365;break;
-                }
-
-                this.countDate = [(new Date(date)), (new Date(today))];
-            },
-            initChart () {
-                const myChart = echarts.init(this.$refs.chart)
-
+            initChart2 () {
+                const myChart = echarts.init(this.$refs.chart2)
                 const option = {
                     title: {
                         text: '工作量'
@@ -101,14 +122,144 @@
 
                 myChart.setOption(option);
             },
+            initChart1() {
+                const myChart = echarts.init(this.$refs.chart1)
+                var heatmapData = [];
+                var lunarData = [];
+                for (var i = 0; i < this.dateList.length; i++) {
+                    heatmapData.push([
+                        this.dateList[i][0],
+                        this.dateList[i][3] * 1,
+                    ]);
+                    lunarData.push([
+                        this.dateList[i][0],
+                        1,
+                        this.dateList[i][1],
+                        this.dateList[i][2]
+                    ]);
+                }
+                const option = {
+                    title: {
+                        text: '本月计划'
+                    },
+                    tooltip: {
+                        formatter: function (params) {
+                            return '工作量: ' + params.value[1];
+                        }
+                    },
+
+                    visualMap: {
+                        show: false,
+                        min: 0,
+                        max: 300,
+                        calculable: true,
+                        seriesIndex: [2],
+                        orient: 'horizontal',
+                        left: 'center',
+                        bottom: 20,
+                        inRange: {
+                            color: ['#ffffff', '#ff0000'],
+                            opacity: 0.3
+                        },
+                        controller: {
+                            inRange: {
+                                opacity: 0.5
+                            }
+                        }
+                    },
+
+                    calendar: [{
+                        left: 'center',
+                        top: 'middle',
+                        cellSize: [70, 70],
+                        yearLabel: {show: false},
+                        orient: 'vertical',
+                        dayLabel: {
+                            firstDay: 1,
+                            nameMap: 'cn'
+                        },
+                        monthLabel: {
+                            show: false
+                        },
+                        range: '2019-05'
+                    }],
+
+                    series: [{
+                        type: 'scatter',
+                        coordinateSystem: 'calendar',
+                        symbolSize: 1,
+                        label: {
+                            normal: {
+                                show: true,
+                                formatter: function (params) {
+                                    var d = echarts.number.parseDate(params.value[0]);
+                                    return d.getDate() + '\n\n' + params.value[2] + '\n\n';
+                                },
+                                textStyle: {
+                                    color: '#000'
+                                }
+                            }
+                        },
+                        data: lunarData
+                    }, {
+                        type: 'scatter',
+                        coordinateSystem: 'calendar',
+                        symbolSize: 1,
+                        label: {
+                            normal: {
+                                show: true,
+                                formatter: function (params) {
+                                    return '\n\n\n' + (params.value[3] || '');
+                                },
+                                textStyle: {
+                                    fontSize: 14,
+                                    fontWeight: 700,
+                                    color: '#a00'
+                                }
+                            }
+                        },
+                        data: lunarData
+                    }, {
+                        name: '降雨量',
+                        type: 'heatmap',
+                        coordinateSystem: 'calendar',
+                        data: heatmapData
+                    }]
+                };
+
+                myChart.setOption(option);
+            },
             getData: function () {
                 axios.get("http://localhost:8888/group/count").then(res => {
                     var data = res.data;
                     console.log(data)
                     this.tableData = data
                     this.info = data.map(x => x.name);
-                    this.value = data.map(x => x.count)
-                    this.initChart();
+                    this.value = data.map(x => x.count);
+                    this.initChart2();
+                })
+                var date = new Date()
+                axios.get("http://localhost:8888/task/date/" + date.getFullYear() +"/" + (date.getMonth()+1)).then(res => {
+                    this.dateList = res.data
+                    var count = [
+                        {value:0, name:'未分配'},
+                        {value:0, name:'开发中'},
+                        {value:0, name:'测试中'},
+                        {value:0, name:'未通过测试'},
+                        {value:0, name:'完成任务'},
+                        {value:0, name:'超时任务'}]
+                    for (let i = 0; i < this.dateList.length; i++) {
+                        var staff = this.dateList[i];
+                        console.log("loop",staff)
+                        count[staff[4]-1].value += parseInt(staff[3]);
+                    }
+                    this.taskRatioList = count
+                    console.log(count)
+                    this.initChart1();
+                    this.initChart3();
+
+                }).catch(err => {
+                    this.$Message.error(err)
                 })
             },
         },
@@ -117,10 +268,3 @@
         }
     };
 </script>
-
-<style>
-    .count{
-        font-size: 30px;
-        height: 150px;
-    }
-</style>
