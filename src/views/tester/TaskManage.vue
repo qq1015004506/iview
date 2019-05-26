@@ -108,6 +108,13 @@
                                         text: '任务完成'
                                     }
                                 })
+                            }else if (row.stage === 6 || row.stage === "6") {
+                                edit = h('Badge', {
+                                    props: {
+                                        status: 'error',
+                                        text: '任务超时'
+                                    }
+                                })
                             }
                             return h('div', [edit]);
                         }
