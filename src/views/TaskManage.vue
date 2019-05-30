@@ -160,12 +160,22 @@
                                     },
                                     on: {
                                         click: () => {
-                                            this.$router.push({
-                                                path: '/updateTask',
-                                                query:{
-                                                    id:params.row.id,
-                                                }
-                                            })
+                                            if(params.row.isTest) {
+                                                this.$router.push({
+                                                    path: '/updateTestTask',
+                                                    query:{
+                                                        id:params.row.id,
+                                                    }
+                                                })
+                                            }
+                                            else {
+                                                this.$router.push({
+                                                    path: '/updateTask',
+                                                    query: {
+                                                        id: params.row.id,
+                                                    }
+                                                })
+                                            }
                                         }
                                     }
                                 }, '修改'),
@@ -181,9 +191,9 @@
                                         click: () => {
                                             let path ='';
                                             if(params.row.isTest)
-                                                path = 'http://localhost:8888/task/'+params.row.id;
-                                            else
                                                 path = 'http://localhost:8888/task/test/'+params.row.id+'/'+params.row.codeId;
+                                            else
+                                                path = 'http://localhost:8888/task/'+params.row.id;
                                             axios.delete(path).then(() => {
                                                 this.$Message.success('删除成功');
                                                 this.getData();

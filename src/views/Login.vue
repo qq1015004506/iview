@@ -15,7 +15,7 @@
                 </p>
                 <h1></h1>
                 <Form ref="staff" :model="staff" :rules="ruleInline" >
-                    <FormItem prop="user">
+                    <FormItem prop="username">
                         <Input type="text" v-model="staff.username" placeholder="Username">
                         <Icon type="ios-person-outline" slot="prepend"></Icon>
                         </Input>
@@ -69,6 +69,7 @@
                             var job = res.data.job;
                             window.localStorage.setItem("login",res.data.job)
                             window.localStorage.setItem("id",res.data.id)
+                            window.localStorage.setItem("name",res.data.name)
 
                             window.localStorage.removeItem("admin");
                             window.localStorage.removeItem("coder");

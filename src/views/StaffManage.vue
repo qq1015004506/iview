@@ -7,8 +7,8 @@
                 </FormItem>
                 <FormItem label="员工职位：">
                     <Select v-model="query.job" placeholder="请选择" style="width: 200px;">
-                        <Option :value="1">产品经理</Option>
-                        <Option :value="1">开发人员</Option>
+                        <Option :value="1">管理人员</Option>
+                        <Option :value="2">开发人员</Option>
                         <Option :value="3">测试人员</Option>
                     </Select>
                 </FormItem>
@@ -43,7 +43,7 @@
                     </FormItem>
                     <FormItem label="职务" prop="job">
                         <Select v-model="create.job" placeholder="选择职务" >
-                            <Option value=1>产品经理</Option>
+                            <Option value=1>管理人员</Option>
                             <Option value=2>开发人员</Option>
                             <Option value=3>测试人员</Option>
                         </Select>
@@ -214,7 +214,7 @@
                                             props: {
                                                 value: 1
                                             }
-                                        },'产品经理'),
+                                        },'管理人员'),
                                         h('Option',{
                                             props: {
                                                 value: 2
@@ -233,7 +233,7 @@
                                     edit = h('Badge', {
                                         props: {
                                             status: 'processing',
-                                            text: '产品经理'
+                                            text: '管理人员'
                                         }
                                     })
                                 } else if (row.job === 2 || row.job === "2") {
@@ -302,7 +302,16 @@
                                     }, '取消')
                                 ]
                             } else {
-                                return h('Button', {
+                                return h('div',[
+                                h('Button', {
+                                    props: {
+                                        type: 'primary',
+                                        size: 'small'
+                                    },
+
+                                    style: {
+                                        marginRight: '5px'
+                                    },
                                     on: {
                                         click: () => {
                                             this.editName = row.name;
@@ -312,7 +321,25 @@
                                             this.editIndex = index;
                                         }
                                     }
-                                }, '修改')
+                                }, '修改'),
+                                h('Button', {
+                                    props: {
+                                        type: 'error',
+                                        size: 'small'
+                                    },
+                                    on: {
+                                        click: () => {
+                                            axios.delete('http://localhost:8888/staff/'+row.id).then(() => {
+                                                this.$Message.success('删除成功');
+                                                this.getData();
+                                            }).catch( err=>{
+                                                this.$Message.error(err.message);
+                                            })
+                                        }
+                                    }
+                                }, '删除'),
+
+                                ])
                             }
                         }
                     }
@@ -350,16 +377,17 @@
             handleSubmit (name) {
                 this.$refs[name].validate((valid) => {
                     if (valid) {
-                        axios.post("http://localhost:8888/staff",this.create).then((res) => {
-                            console.log(this.create);
-                            this.data = [this.create].concat(this.data);
-                            this.$Message.success('添加成功!');
-                            this.openCreate = false;
-                        }).catch((err) => {
-                            this.$Message.error('添加失败!');
+                        axios.post("http://localhost:8888/staff",this.create).then(res => {
+                            if(res.data == 0) {
+                                this.$Message.error('用户已存在');
+                            }else {
+                                this.data = [this.create].concat(this.data);
+                                this.$Message.success('添加成功!');
+                                this.openCreate = false;
+                            }
+                        }).catch(err => {
+                            this.$Message.error('添加失败!'+err.message);
                         })
-
-
                     } else {
                         this.$Message.error('请完善信息后再次提交!');
                     }
