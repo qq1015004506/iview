@@ -161,10 +161,14 @@
                                     on: {
                                         click: () => {
                                             if(params.row.isTest) {
+                                                var t = this.data.filter(x=> x.id === params.row.codeId)[0];
+
                                                 this.$router.push({
                                                     path: '/updateTestTask',
                                                     query:{
                                                         id:params.row.id,
+                                                        start:(new Date(t.startTime)).getTime(),
+                                                        end:(new Date(t.endTime)).getTime(),
                                                     }
                                                 })
                                             }
@@ -218,6 +222,8 @@
                                                     path: '/addTestTask',
                                                     query:{
                                                         id:params.row.id,
+                                                        start:(new Date(params.row.startTime)).getTime(),
+                                                        end:(new Date(params.row.endTime)).getTime(),
                                                     }
                                                 })
                                             }

@@ -48,7 +48,7 @@
                         render: (h, {row, index}) => {
                             return h('Time',{
                                 props:{
-                                    time: (new Date(row.startTime)).getTime() - 86400 * 3 * 1000,
+                                    time: (new Date(row.startTime)).getTime(),
                                     type:'date'
                                 }
                             })
@@ -60,7 +60,7 @@
                         render: (h, {row, index}) => {
                             return h('Time',{
                                 props:{
-                                    time: (new Date(row.endTime)).getTime() - 86400 * 3 * 1000,
+                                    time: (new Date(row.endTime)).getTime(),
                                     type:'date'
                                 }
                             })
@@ -126,58 +126,97 @@
                         align: 'center',
                         render: (h, params) => {
                             console.log(params)
-                            return h('div', [
-                                h('Button', {
-                                    props: {
-                                        type: 'primary',
-                                        size: 'small'
-                                    },
-                                    style: {
-                                        marginRight: '5px'
-                                    },
-                                    on: {
-                                        click: () => {
-                                            window.open("http://localhost:8888/file/"+params.row.codeId, '_blank');
+                            if(params.row.stage === 3) {
+                                return h('div', [
+                                    h('Button', {
+                                        props: {
+                                            type: 'primary',
+                                            size: 'small'
+                                        },
+                                        style: {
+                                            marginRight: '5px'
+                                        },
+                                        on: {
+                                            click: () => {
+                                                window.open("http://localhost:8888/file/" + params.row.codeId, '_blank');
+                                            }
                                         }
-                                    }
-                                }, '下载文件'),
-                                h('Button', {
-                                    props: {
-                                        type: 'success',
-                                        size: 'small'
-                                    },
-                                    style: {
-                                        marginRight: '5px'
-                                    },
-                                    on: {
-                                        click: () => {
-                                            console.log(params.row)
-                                            this.openCreate = true;
-                                            this.task.codeId = params.row.codeId;
-                                            this.task.id = params.row.id;
+                                    }, '下载文件'),
+                                    h('Button', {
+                                        props: {
+                                            type: 'success',
+                                            size: 'small'
+                                        },
+                                        style: {
+                                            marginRight: '5px'
+                                        },
+                                        on: {
+                                            click: () => {
+                                                console.log(params.row)
+                                                this.openCreate = true;
+                                                this.task.codeId = params.row.codeId;
+                                                this.task.id = params.row.id;
+                                            }
                                         }
-                                    }
-                                }, '进行评测'),
-                                h('Button', {
-                                    props: {
-                                        type: 'error',
-                                        size: 'small'
-                                    },
-                                    style: {
-                                        marginRight: '5px'
-                                    },
-                                    on: {
-                                        click: () => {
-                                            this.$router.push({
-                                                path: '/coder/diff',
-                                                query:{
-                                                    id:params.row.codeId,
-                                                }
-                                            })
+                                    }, '进行评测'),
+                                    h('Button', {
+                                        props: {
+                                            type: 'error',
+                                            size: 'small'
+                                        },
+                                        style: {
+                                            marginRight: '5px'
+                                        },
+                                        on: {
+                                            click: () => {
+                                                this.$router.push({
+                                                    path: '/coder/diff',
+                                                    query: {
+                                                        id: params.row.codeId,
+                                                    }
+                                                })
+                                            }
                                         }
-                                    }
-                                }, '查看不同'),
-                            ]);
+                                    }, '查看不同'),
+                                ]);
+                            }
+                            else {
+                                return h('div', [
+                                    h('Button', {
+                                        props: {
+                                            type: 'primary',
+                                            size: 'small'
+                                        },
+                                        style: {
+                                            marginRight: '5px'
+                                        },
+                                        on: {
+                                            click: () => {
+                                                window.open("http://localhost:8888/file/" + params.row.codeId, '_blank');
+                                            }
+                                        }
+                                    }, '下载文件'),
+                                    h('Button', {
+                                        props: {
+                                            type: 'error',
+                                            size: 'small'
+                                        },
+                                        style: {
+                                            marginRight: '5px'
+                                        },
+                                        on: {
+                                            click: () => {
+                                                this.$router.push({
+                                                    path: '/coder/diff',
+                                                    query: {
+                                                        id: params.row.codeId,
+                                                    }
+                                                })
+                                            }
+                                        }
+                                    }, '查看不同'),
+                                ]);
+                            }
                         }
                     }
                 ],
@@ -193,7 +232,7 @@
 
                 if(this.loading) return;
                 this.loading = true;
-                let path = 'http://localhost:8888/task/staff/'+10;
+                let path = 'http://localhost:8888/task/staff/'+window.localStorage.getItem("id");
 
                 axios.get(path).then(res=>{
                     this.data = res.data;
@@ -217,7 +256,9 @@
                     onCancel: () => {
                         this.$Message.info('Clicked cancel');
                     }
+
                 });
+                this.getData();
             },
             errorhandleSubmit() {
                 this.$Modal.confirm({
@@ -236,6 +277,7 @@
                         this.$Message.info('Clicked cancel');
                     }
                 });
+                this.getData();
             },
             handleChangeSize(val) {
                 this.size = val;

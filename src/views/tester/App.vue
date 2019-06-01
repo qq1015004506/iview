@@ -153,7 +153,7 @@
                         monthLabel: {
                             show: false
                         },
-                        range: '2019-05'
+                        range: '2019-06'
                     }],
 
                     series: [{

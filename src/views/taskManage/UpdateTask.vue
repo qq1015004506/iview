@@ -121,6 +121,8 @@
                 axios.get("http://localhost:8888/task/"+this.$route.query.id).then(res=>{
                     this.task = res.data
                     this.time = [new Date(this.task.startTime),new Date(this.task.endTime)]
+                    console.log(this.time)
+                    console.log(this.task)
                 })
 
             },

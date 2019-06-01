@@ -82,8 +82,6 @@
             getData() {
                 axios.get("http://localhost:8888/file/task/"+this.$route.query.id).then(res=>{
                     this.data = res.data
-
-                    console.log(this.data)
                     for (let i = 0; i < this.data.length; i++) {
                         this.data[i].index = i;
                         this.data[i]._highlight = false;
@@ -91,6 +89,7 @@
                     if(this.data.length) {
                         this.data[0]._highlight = true;
                         this.code = this.data[0].codeDetail;
+                        this.codeInfo = this.data[0]
                     }
 
                     this.initEditor();
@@ -109,6 +108,7 @@
 
             selectCode(row){
                 this.code = row.codeDetail;
+                this.codeInfo = row
                 this.initEditor();
             }
         },

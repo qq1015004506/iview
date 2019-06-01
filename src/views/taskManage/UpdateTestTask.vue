@@ -11,7 +11,7 @@
                             <Input type="textarea" v-model="task.description" clearable placeholder="请输入任务描述" />
                         </FormItem>
                         <FormItem label="任务起止时间:">
-                            <DatePicker v-model="time" type="daterange" split-panels transfer placement="bottom-end" placeholder="Select date" ></DatePicker>
+                            <DatePicker v-model="time" :options="options" type="daterange" split-panels transfer placement="bottom-end" placeholder="Select date" ></DatePicker>
                         </FormItem>
                         <FormItem>
                             <Button type="primary" @click="handleSubmit">Submit</Button>
@@ -45,6 +45,12 @@
             return {
                 group:0,
                 time:[],
+                times:[],
+                options: {
+                    disabledDate: (function (date) {
+                        return date.valueOf() < this.times[0] || date.valueOf() > this.times[1];
+                    }).bind(this)
+                },
                 task: {
                     name: '',
                     description:'',
@@ -143,6 +149,8 @@
             }
         },
         mounted(){
+            this.times.push(this.$route.query.start)
+            this.times.push(this.$route.query.end)
             this.getData();
         }
     }

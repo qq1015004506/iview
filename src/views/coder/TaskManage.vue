@@ -87,7 +87,7 @@
                         render: (h, {row, index}) => {
                             return h('Time',{
                                 props:{
-                                    time: (new Date(row.startTime)).getTime() - 86400 * 3 * 1000,
+                                    time: (new Date(row.startTime)).getTime(),
                                     type:'date'
                                 }
                             })
@@ -99,7 +99,7 @@
                         render: (h, {row, index}) => {
                             return h('Time',{
                                 props:{
-                                    time: (new Date(row.endTime)).getTime() - 86400 * 3 * 1000,
+                                    time: (new Date(row.endTime)).getTime(),
                                     type:'date'
                                 }
                             })
