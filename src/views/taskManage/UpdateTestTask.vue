@@ -80,7 +80,7 @@
                                 edit = h('Badge', {
                                     props: {
                                         status: 'processing',
-                                        text: '产品经理'
+                                        text: '管理人员'
                                     }
                                 })
                             } else if (row.job === 2 || row.job === "2") {

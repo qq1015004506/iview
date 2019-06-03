@@ -33,7 +33,7 @@
         methods:{
             displayJob(job) {
                 if(job === 1)
-                    return "产品经理"
+                    return "管理人员"
                 if(job === 2)
                     return "开发人员"
                 if(job === 3)

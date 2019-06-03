@@ -76,7 +76,7 @@
                                             props: {
                                                 value: 1
                                             }
-                                        },'产品经理'),
+                                        },'管理人员'),
                                         h('Option',{
                                             props: {
                                                 value: 2
@@ -95,7 +95,7 @@
                                     edit = h('Badge', {
                                         props: {
                                             status: 'processing',
-                                            text: '产品经理'
+                                            text: '管理人员'
                                         }
                                     })
                                 } else if (row.job === 2 || row.job === "2") {
@@ -131,7 +131,8 @@
             getData(){
               let url = 'http://localhost:8888/group/staff'
               axios.get(url).then(res=>{
-                  this.data = res.data;
+                  console.log('data:',res.data);
+                  this.data = res.data.filter(x=>x.job != 1);
               })
             },
             onSelect(selection) {
